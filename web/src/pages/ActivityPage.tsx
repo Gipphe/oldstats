@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../api/client";
+import { ItemIcon } from "../components/ItemIcon";
 import { MonsterIcon } from "../components/MonsterIcon";
 import { SectionCard } from "../components/SectionCard";
 import { useApiData } from "../hooks/useApiData";
@@ -115,7 +116,7 @@ function DropsTab({ playerId }: { playerId: number }) {
         {(data ?? []).map((d, i) => (
           <li key={i} className="list-item">
             <span className="list-item-name">
-              {d.npcName && <MonsterIcon npcName={d.npcName} />}
+              <ItemIcon itemName={d.itemName} />
               {d.quantity > 1 ? `${d.quantity}x ` : ""}
               {d.itemName}
               {d.npcName ? ` (${d.npcName})` : ""}

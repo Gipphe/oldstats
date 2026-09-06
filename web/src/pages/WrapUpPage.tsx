@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { api } from "../api/client";
 import { BarChart } from "../components/BarChart";
+import { ItemIcon } from "../components/ItemIcon";
 import { MonsterIcon } from "../components/MonsterIcon";
 import { SectionCard } from "../components/SectionCard";
 import { SkillIcon } from "../components/SkillIcon";
@@ -128,7 +129,10 @@ export function WrapUpPage() {
               <ul className="list">
                 {data.bestDrops.map((drop, i) => (
                   <li key={i} className="list-item">
-                    <span>{drop.itemName}</span>
+                    <span className="list-item-name">
+                      <ItemIcon itemName={drop.itemName} />
+                      {drop.itemName}
+                    </span>
                     <span className="list-item-meta tabular-nums">{formatGp(drop.value)} gp</span>
                   </li>
                 ))}
