@@ -1,6 +1,7 @@
 plugins {
     java
     kotlin("jvm") version "1.9.24"
+    id("com.gradleup.shadow") version "8.3.11"
 }
 
 group = "com.oldstats"
@@ -47,3 +48,10 @@ tasks.register<JavaExec>("runClient") {
     classpath = sourceSets.test.get().runtimeClasspath
     jvmArgs("-ea") // required by ExternalPluginManager.loadBuiltin as a development safety check
 }
+
+// `shadowJar` (from the shadow plugin) bundles kotlin-stdlib into the built
+// jar — needed to sideload this plugin into an existing RuneLite install,
+// since RuneLite's PluginClassLoader gives each sideloaded jar its own
+// classloader with no access to Kotlin's runtime otherwise. Output:
+// build/libs/oldstats-plugin-<version>-all.jar — copy into
+// ~/.runelite/sideloaded-plugins/ (see README.md).

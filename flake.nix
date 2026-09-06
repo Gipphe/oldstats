@@ -132,6 +132,38 @@
 
             meta.mainProgram = "oldstats-web";
           };
+
+          plugin = pkgs.stdenv.mkDerivation (finalAttrs: {
+            pname = "oldstats-plugin";
+            version = "1.0.0";
+            src = ./plugin;
+
+            # Deprecated Gradle features used by the Kotlin/shadow plugins
+            # make this build incompatible with Gradle 9 — must stay 8.x,
+            # matching the version pinned by plugin/gradle-wrapper.properties.
+            nativeBuildInputs = [ pkgs.gradle_8 ];
+
+            # Gradle has no built-in reproducible dependency fetching, so
+            # nixpkgs proxies + records every Maven request into deps.json
+            # (a MITM cache), replayed here instead of hitting the network.
+            # Regenerate via:
+            #   nix build .#plugin.mitmCache.updateScript -o /tmp/update-oldstats-plugin-deps
+            #   /tmp/update-oldstats-plugin-deps
+            mitmCache = pkgs.gradle_8.fetchDeps {
+              pkg = finalAttrs.finalPackage;
+              data = ./plugin/deps.json;
+            };
+            __darwinAllowLocalNetworking = true;
+
+            gradleBuildTask = "shadowJar";
+
+            installPhase = ''
+              runHook preInstall
+              mkdir -p $out
+              cp build/libs/*-all.jar $out/oldstats-plugin.jar
+              runHook postInstall
+            '';
+          });
         }
       );
 
