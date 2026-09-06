@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api } from "../api/client";
 import { ItemIcon } from "../components/ItemIcon";
 import { MonsterIcon } from "../components/MonsterIcon";
+import { ScrollFadeRow } from "../components/ScrollFadeRow";
 import { SectionCard } from "../components/SectionCard";
 import { useApiData } from "../hooks/useApiData";
 import { formatDateTime, formatDuration, formatGp, titleCase } from "../lib/format";
@@ -55,7 +56,7 @@ export function ActivityPage() {
   return (
     <div className="page">
       <h1>Activity</h1>
-      <div className="tabs" role="tablist">
+      <ScrollFadeRow className="tabs" role="tablist">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -67,7 +68,7 @@ export function ActivityPage() {
             {t.label}
           </button>
         ))}
-      </div>
+      </ScrollFadeRow>
 
       {tab === "kills" && <KillsTab playerId={selectedPlayer.id} />}
       {tab === "drops" && <DropsTab playerId={selectedPlayer.id} />}

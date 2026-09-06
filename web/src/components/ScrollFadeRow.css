@@ -1,0 +1,47 @@
+.scroll-fade-wrap {
+  position: relative;
+}
+
+.scroll-fade-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.scroll-fade-edge.visible {
+  opacity: 1;
+}
+
+.scroll-fade-edge.left {
+  left: 0;
+  background: linear-gradient(90deg, var(--surface-2), transparent);
+}
+
+.scroll-fade-edge.right {
+  right: 0;
+  background: linear-gradient(270deg, var(--surface-2), transparent);
+}
+
+.scroll-fade-edge::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-top: 2px solid var(--series-1);
+  border-right: 2px solid var(--series-1);
+}
+
+.scroll-fade-edge.left::after {
+  left: 4px;
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+.scroll-fade-edge.right::after {
+  right: 4px;
+  transform: translateY(-50%) rotate(45deg);
+}
