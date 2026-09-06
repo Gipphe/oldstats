@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../api/client";
+import { MonsterIcon } from "../components/MonsterIcon";
 import { SectionCard } from "../components/SectionCard";
 import { useApiData } from "../hooks/useApiData";
 import { formatDateTime, formatDuration, formatGp, titleCase } from "../lib/format";
@@ -92,7 +93,8 @@ function KillsTab({ playerId }: { playerId: number }) {
       <ul className="list">
         {(data ?? []).map((k, i) => (
           <li key={i} className="list-item">
-            <span>
+            <span className="list-item-name">
+              <MonsterIcon npcName={k.npcName} />
               {k.npcName} {k.isBoss ? <span className="inline-badge">Boss</span> : null}
             </span>
             <span className="list-item-meta">{formatDateTime(k.ts)}</span>
@@ -112,7 +114,8 @@ function DropsTab({ playerId }: { playerId: number }) {
       <ul className="list">
         {(data ?? []).map((d, i) => (
           <li key={i} className="list-item">
-            <span>
+            <span className="list-item-name">
+              {d.npcName && <MonsterIcon npcName={d.npcName} />}
               {d.quantity > 1 ? `${d.quantity}x ` : ""}
               {d.itemName}
               {d.npcName ? ` (${d.npcName})` : ""}
@@ -286,7 +289,10 @@ function PersonalBestsTab({ playerId }: { playerId: number }) {
       <ul className="list">
         {(data ?? []).map((p, i) => (
           <li key={i} className="list-item">
-            <span>{p.activityName}</span>
+            <span className="list-item-name">
+              <MonsterIcon npcName={p.activityName} />
+              {p.activityName}
+            </span>
             <span className="list-item-meta tabular-nums">{formatDuration(p.durationSeconds)}</span>
           </li>
         ))}

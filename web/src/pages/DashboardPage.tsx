@@ -1,6 +1,7 @@
 import { api } from "../api/client";
 import { BarChart } from "../components/BarChart";
 import { LineChart } from "../components/LineChart";
+import { MonsterIcon } from "../components/MonsterIcon";
 import { SectionCard } from "../components/SectionCard";
 import { SkillIcon } from "../components/SkillIcon";
 import { StatTile } from "../components/StatTile";
@@ -102,6 +103,7 @@ export function DashboardPage() {
             label: k.npcName,
             value: k.count,
             badge: k.isBoss ? "Boss" : undefined,
+            icon: <MonsterIcon npcName={k.npcName} />,
           }))}
           emptyMessage="No kills tracked yet"
         />

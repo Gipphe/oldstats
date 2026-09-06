@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { api } from "../api/client";
 import { BarChart } from "../components/BarChart";
+import { MonsterIcon } from "../components/MonsterIcon";
 import { SectionCard } from "../components/SectionCard";
 import { SkillIcon } from "../components/SkillIcon";
 import { StatTile } from "../components/StatTile";
@@ -114,6 +115,7 @@ export function WrapUpPage() {
                 label: m.npcName,
                 value: m.count,
                 badge: m.isBoss ? "Boss" : undefined,
+                icon: <MonsterIcon npcName={m.npcName} />,
               }))}
               emptyMessage="No kills this week"
             />
