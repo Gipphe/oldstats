@@ -1,5 +1,6 @@
 package com.oldstats
 
+import com.google.gson.Gson
 import com.google.inject.Provides
 import com.oldstats.api.OldStatsApiClient
 import com.oldstats.tracking.AchievementDiaryTracker
@@ -41,6 +42,8 @@ import net.runelite.client.plugins.Plugin
 import net.runelite.client.plugins.PluginDescriptor
 import okhttp3.OkHttpClient
 import javax.inject.Inject
+import javax.swing.JOptionPane
+import javax.swing.SwingUtilities
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
@@ -64,7 +67,13 @@ class OldStatsPlugin : Plugin() {
     private lateinit var config: OldStatsConfig
 
     @Inject
+    private lateinit var configManager: ConfigManager
+
+    @Inject
     private lateinit var okHttpClient: OkHttpClient
+
+    @Inject
+    private lateinit var gson: Gson
 
     @Inject
     private lateinit var itemManager: ItemManager
@@ -102,8 +111,11 @@ class OldStatsPlugin : Plugin() {
         configManager.getConfig(OldStatsConfig::class.java)
 
     override fun startUp() {
+        showDataWarningOnce()
+
         apiClient = OldStatsApiClient(
             httpClient = okHttpClient,
+            gson = gson,
             serverUrlProvider = { config.serverUrl() },
             apiKeyProvider = { config.apiKey() },
         )
@@ -151,7 +163,33 @@ class OldStatsPlugin : Plugin() {
         flushTask = null
         netWorthTask?.cancel(false)
         netWorthTask = null
+        // flush() dispatches over OkHttp's own threadpool and returns immediately,
+        // so this doesn't block shutdown waiting on the network.
         runCatching { apiClient.flush() }
+    }
+
+    /**
+     * Mirrors how WikiSync discloses its own third-party data submission: a one-time
+     * popup the first time the plugin runs, rather than gating every tracker behind
+     * an opt-in toggle. Shown off the calling thread so startUp() never blocks on it.
+     */
+    private fun showDataWarningOnce() {
+        val alreadyShown = configManager.getConfiguration(OldStatsConfig.GROUP, OldStatsConfig.WARNING_SHOWN_KEY)?.toBoolean() ?: false
+        if (alreadyShown) return
+        configManager.setConfiguration(OldStatsConfig.GROUP, OldStatsConfig.WARNING_SHOWN_KEY, true)
+
+        SwingUtilities.invokeLater {
+            JOptionPane.showMessageDialog(
+                null,
+                "OldStats sends your tracked stats (XP, kills, drops, quests, and so on) to the " +
+                    "server configured under \"Server URL\" in this plugin's settings.\n\n" +
+                    "This server is not run, controlled, or verified by RuneLite developers — it's " +
+                    "whatever you configure, typically a server you host yourself.\n\n" +
+                    "Nothing is sent until you set a Server URL and API key.",
+                "OldStats",
+                JOptionPane.WARNING_MESSAGE,
+            )
+        }
     }
 
     @Subscribe

@@ -3,7 +3,7 @@ package com.oldstats.tracking
 import com.oldstats.api.OldStatsApiClient
 import com.oldstats.api.StatEvent
 import net.runelite.api.Client
-import net.runelite.api.VarPlayer
+import net.runelite.api.gameval.VarPlayerID
 import net.runelite.api.gameval.VarbitID
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -54,8 +54,8 @@ class SlayerTrackerTest {
     }
 
     private fun setTask(creature: Int, amount: Int, points: Int = 0, bossId: Int? = null) {
-        whenever(client.getVarpValue(VarPlayer.SLAYER_TASK_CREATURE)).thenReturn(creature)
-        whenever(client.getVarpValue(VarPlayer.SLAYER_TASK_SIZE)).thenReturn(amount)
+        whenever(client.getVarpValue(VarPlayerID.SLAYER_TARGET)).thenReturn(creature)
+        whenever(client.getVarpValue(VarPlayerID.SLAYER_COUNT)).thenReturn(amount)
         whenever(client.getVarbitValue(VarbitID.SLAYER_POINTS)).thenReturn(points)
         if (bossId != null) {
             whenever(client.getVarbitValue(VarbitID.SLAYER_TARGET_BOSSID)).thenReturn(bossId)

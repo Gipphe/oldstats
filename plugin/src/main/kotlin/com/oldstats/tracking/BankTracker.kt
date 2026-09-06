@@ -3,8 +3,8 @@ package com.oldstats.tracking
 import com.oldstats.api.BankItemPayload
 import com.oldstats.api.OldStatsApiClient
 import com.oldstats.api.StatEvent
-import net.runelite.api.InventoryID
 import net.runelite.api.events.ItemContainerChanged
+import net.runelite.api.gameval.InventoryID
 import net.runelite.client.game.ItemManager
 import java.time.Duration
 import java.time.Instant
@@ -28,7 +28,7 @@ class BankTracker(
     }
 
     fun onItemContainerChanged(event: ItemContainerChanged) {
-        if (event.containerId != InventoryID.BANK.id) return
+        if (event.containerId != InventoryID.BANK) return
 
         val last = lastSentAt
         if (last != null && Duration.between(last, Instant.now()) < MIN_INTERVAL) return

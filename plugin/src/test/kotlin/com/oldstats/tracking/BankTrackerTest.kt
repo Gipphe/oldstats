@@ -2,7 +2,7 @@ package com.oldstats.tracking
 
 import com.oldstats.api.OldStatsApiClient
 import com.oldstats.api.StatEvent
-import net.runelite.api.InventoryID
+import net.runelite.api.gameval.InventoryID
 import net.runelite.api.Item
 import net.runelite.api.ItemComposition
 import net.runelite.api.ItemContainer
@@ -36,7 +36,7 @@ class BankTrackerTest {
         return comp
     }
 
-    private fun bankEvent(vararg items: Item, containerId: Int = InventoryID.BANK.id): ItemContainerChanged {
+    private fun bankEvent(vararg items: Item, containerId: Int = InventoryID.BANK): ItemContainerChanged {
         val container: ItemContainer = mock()
         whenever(container.items).thenReturn(arrayOf(*items))
         whenever(container.size()).thenReturn(items.size)
@@ -67,7 +67,7 @@ class BankTrackerTest {
 
     @Test
     fun `ignores changes to containers other than the bank`() {
-        tracker.onItemContainerChanged(bankEvent(Item(995, 1000), containerId = InventoryID.INVENTORY.id))
+        tracker.onItemContainerChanged(bankEvent(Item(995, 1000), containerId = InventoryID.INV))
         verify(apiClient, never()).enqueue(any())
     }
 

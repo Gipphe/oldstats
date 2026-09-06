@@ -3,8 +3,8 @@ package com.oldstats.tracking
 import com.oldstats.api.OldStatsApiClient
 import com.oldstats.api.StatEvent
 import net.runelite.api.Client
-import net.runelite.api.InventoryID
 import net.runelite.api.ItemContainer
+import net.runelite.api.gameval.InventoryID
 import net.runelite.client.game.ItemManager
 
 /**
@@ -22,8 +22,8 @@ class NetWorthTracker(
     private val itemManager: ItemManager,
 ) {
     fun snapshot() {
-        val inventoryValue = valueOf(client.getItemContainer(InventoryID.INVENTORY))
-        val equipmentValue = valueOf(client.getItemContainer(InventoryID.EQUIPMENT))
+        val inventoryValue = valueOf(client.getItemContainer(InventoryID.INV))
+        val equipmentValue = valueOf(client.getItemContainer(InventoryID.WORN))
         val bankValue = valueOf(client.getItemContainer(InventoryID.BANK))
         val total = inventoryValue + equipmentValue + bankValue
         if (total == 0L) return

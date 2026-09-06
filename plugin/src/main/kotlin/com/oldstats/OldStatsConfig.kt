@@ -4,8 +4,21 @@ import net.runelite.client.config.Config
 import net.runelite.client.config.ConfigGroup
 import net.runelite.client.config.ConfigItem
 
-@ConfigGroup("oldstats")
+@ConfigGroup(OldStatsConfig.GROUP)
 interface OldStatsConfig : Config {
+
+    companion object {
+        const val GROUP = "oldstats"
+        const val WARNING_SHOWN_KEY = "warningShown"
+    }
+
+    @ConfigItem(
+        keyName = WARNING_SHOWN_KEY,
+        name = "Data warning shown",
+        description = "Internal: whether the one-time data-submission warning has already been shown",
+        hidden = true,
+    )
+    fun warningShown(): Boolean = false
 
     @ConfigItem(
         keyName = "serverUrl",

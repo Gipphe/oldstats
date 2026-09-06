@@ -5,7 +5,7 @@ import com.oldstats.api.StatEvent
 import net.runelite.api.Client
 import net.runelite.api.Quest
 import net.runelite.api.QuestState
-import net.runelite.api.VarPlayer
+import net.runelite.api.gameval.VarPlayerID
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -35,7 +35,7 @@ class QuestTracker(
                     StatEvent.Quest(
                         questName = quest.name,
                         state = "COMPLETED",
-                        questPoints = client.getVarpValue(VarPlayer.QUEST_POINTS),
+                        questPoints = client.getVarpValue(VarPlayerID.QP),
                     )
                 )
             }

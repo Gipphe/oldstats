@@ -3,7 +3,7 @@ package com.oldstats.tracking
 import com.oldstats.api.OldStatsApiClient
 import com.oldstats.api.StatEvent
 import net.runelite.api.Client
-import net.runelite.api.VarPlayer
+import net.runelite.api.gameval.VarPlayerID
 import net.runelite.api.gameval.VarbitID
 
 /**
@@ -11,13 +11,13 @@ import net.runelite.api.gameval.VarbitID
  * plugin does — no chat parsing. The task's monster identity isn't stored as
  * plain text anywhere; it lives in Jagex's client-side DB table system,
  * looked up via [Client.getDBRowsByValue]/[Client.getDBTableField] keyed by
- * [VarPlayer.SLAYER_TASK_CREATURE] (DB table 113, field 10 = display name).
- * Wilderness/Krystilia tasks are a special case: `SLAYER_TASK_CREATURE`
+ * [VarPlayerID.SLAYER_TARGET] (DB table 113, field 10 = display name).
+ * Wilderness/Krystilia tasks are a special case: `SLAYER_TARGET`
  * reads as the sentinel value 98, and the real creature id instead lives in
  * [VarbitID.SLAYER_TARGET_BOSSID], which cross-references into DB table 116
  * (field 4) to get the row id table 113 actually uses.
  *
- * [VarPlayer.SLAYER_TASK_SIZE] is the remaining kill count; a task is
+ * [VarPlayerID.SLAYER_COUNT] is the remaining kill count; a task is
  * considered complete when it hits 0 before the next task is assigned (or,
  * failing that tick boundary, when the creature id changes while the
  * previous task's remaining count was already 0 — cancelling/skipping a task
@@ -57,9 +57,9 @@ class SlayerTracker(
     }
 
     fun checkTask() {
-        val creature = client.getVarpValue(VarPlayer.SLAYER_TASK_CREATURE)
+        val creature = client.getVarpValue(VarPlayerID.SLAYER_TARGET)
         val bossId = if (creature == WILDERNESS_SENTINEL) client.getVarbitValue(VarbitID.SLAYER_TARGET_BOSSID) else null
-        val amount = client.getVarpValue(VarPlayer.SLAYER_TASK_SIZE)
+        val amount = client.getVarpValue(VarPlayerID.SLAYER_COUNT)
         val points = client.getVarbitValue(VarbitID.SLAYER_POINTS)
 
         if (!baselineEstablished) {

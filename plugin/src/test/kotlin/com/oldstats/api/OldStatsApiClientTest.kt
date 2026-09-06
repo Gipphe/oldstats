@@ -1,6 +1,8 @@
 package com.oldstats.api
 
+import com.google.gson.Gson
 import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -16,6 +18,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import java.io.IOException
 
 class OldStatsApiClientTest {
     private lateinit var httpClient: OkHttpClient
@@ -29,7 +32,7 @@ class OldStatsApiClientTest {
         httpClient = mock()
         call = mock()
         whenever(httpClient.newCall(any())).thenReturn(call)
-        apiClient = OldStatsApiClient(httpClient, { serverUrl }, { apiKey })
+        apiClient = OldStatsApiClient(httpClient, Gson(), { serverUrl }, { apiKey })
     }
 
     private fun event(world: Int = 1) = StatEvent.WorldChange(world = world, worldTypes = emptyList())
@@ -42,6 +45,21 @@ class OldStatsApiClientTest {
             .message(if (successful) "OK" else "Error")
             .body(ResponseBody.create(null, "{}"))
             .build()
+
+    /** Makes [callToStub]'s enqueue() synchronously invoke onResponse, like a same-thread fake dispatcher. */
+    private fun stubSuccess(callToStub: Call, response: Response) {
+        whenever(callToStub.enqueue(any())).thenAnswer { invocation ->
+            invocation.getArgument<Callback>(0).onResponse(callToStub, response)
+            null
+        }
+    }
+
+    private fun stubFailure(callToStub: Call, exception: IOException) {
+        whenever(callToStub.enqueue(any())).thenAnswer { invocation ->
+            invocation.getArgument<Callback>(0).onFailure(callToStub, exception)
+            null
+        }
+    }
 
     @Test
     fun `flushing an empty queue never touches the http client`() {
@@ -57,14 +75,14 @@ class OldStatsApiClientTest {
         verify(httpClient, never()).newCall(any())
 
         apiKey = "now-configured"
-        whenever(call.execute()).thenReturn(response(successful = true))
+        stubSuccess(call, response(successful = true))
         apiClient.flush()
         verify(httpClient, times(1)).newCall(any())
     }
 
     @Test
     fun `posts to api-events with a bearer token and trims a trailing slash from the server url`() {
-        whenever(call.execute()).thenReturn(response(successful = true))
+        stubSuccess(call, response(successful = true))
         apiClient.enqueue(event())
         apiClient.flush()
 
@@ -77,7 +95,7 @@ class OldStatsApiClientTest {
 
     @Test
     fun `batches every queued event into a single request`() {
-        whenever(call.execute()).thenReturn(response(successful = true))
+        stubSuccess(call, response(successful = true))
         apiClient.enqueue(event(world = 1))
         apiClient.enqueue(event(world = 2))
         apiClient.enqueue(event(world = 3))
@@ -88,13 +106,13 @@ class OldStatsApiClientTest {
 
     @Test
     fun `requeues the batch for retry when the server rejects it`() {
-        whenever(call.execute()).thenReturn(response(successful = false, code = 500))
+        stubSuccess(call, response(successful = false, code = 500))
         apiClient.enqueue(event())
         apiClient.flush() // rejected, requeued
 
         val retryCall: Call = mock()
         whenever(httpClient.newCall(any())).thenReturn(retryCall)
-        whenever(retryCall.execute()).thenReturn(response(successful = true))
+        stubSuccess(retryCall, response(successful = true))
         apiClient.flush() // should resend the same requeued event
 
         verify(httpClient, times(2)).newCall(any())
@@ -102,13 +120,13 @@ class OldStatsApiClientTest {
 
     @Test
     fun `requeues the batch for retry when sending throws`() {
-        whenever(call.execute()).thenThrow(java.io.IOException("connection refused"))
+        stubFailure(call, IOException("connection refused"))
         apiClient.enqueue(event())
         apiClient.flush() // swallows the exception, requeues
 
         val retryCall: Call = mock()
         whenever(httpClient.newCall(any())).thenReturn(retryCall)
-        whenever(retryCall.execute()).thenReturn(response(successful = true))
+        stubSuccess(retryCall, response(successful = true))
         apiClient.flush()
 
         verify(httpClient, times(2)).newCall(any())
@@ -116,7 +134,7 @@ class OldStatsApiClientTest {
 
     @Test
     fun `flushing again with nothing newly queued does not send an empty request`() {
-        whenever(call.execute()).thenReturn(response(successful = true))
+        stubSuccess(call, response(successful = true))
         apiClient.enqueue(event())
         apiClient.flush()
         apiClient.flush() // queue is empty now
@@ -126,7 +144,7 @@ class OldStatsApiClientTest {
 
     @Test
     fun `drops the oldest queued event once the queue exceeds its cap`() {
-        whenever(call.execute()).thenReturn(response(successful = true))
+        stubSuccess(call, response(successful = true))
         // MAX_QUEUE_SIZE is 5000; fill past it so the very first event gets evicted.
         for (i in 0 until 5001) {
             apiClient.enqueue(event(world = i))

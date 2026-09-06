@@ -1,11 +1,15 @@
 package com.oldstats.api
 
 import com.google.gson.Gson
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.Response
 import org.slf4j.LoggerFactory
+import java.io.IOException
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -19,10 +23,10 @@ private val log = LoggerFactory.getLogger(OldStatsApiClient::class.java)
  */
 class OldStatsApiClient(
     private val httpClient: OkHttpClient,
+    private val gson: Gson,
     private val serverUrlProvider: () -> String,
     private val apiKeyProvider: () -> String,
 ) {
-    private val gson = Gson()
     private val queue = ConcurrentLinkedQueue<StatEvent>()
     private val queueSize = AtomicInteger(0)
 
@@ -38,7 +42,11 @@ class OldStatsApiClient(
         queueSize.incrementAndGet()
     }
 
-    /** Drains the queue and sends everything in one batch. Safe to call from a background thread. */
+    /**
+     * Drains the queue and sends everything in one batch. Never blocks the calling
+     * thread — the request is dispatched via OkHttp's own threadpool ([Call.enqueue]),
+     * so this is also safe to call from `shutDown()`/`startUp()`.
+     */
     fun flush() {
         if (queue.isEmpty()) return
 
@@ -64,19 +72,22 @@ class OldStatsApiClient(
             .post(RequestBody.create(JSON, body))
             .build()
 
-        try {
-            httpClient.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) {
-                    log.warn("OldStats: server rejected batch of {} events: {}", batch.size, response.code())
-                    // requeue for retry on next flush
-                    batch.forEach { enqueue(it) }
-                } else {
-                    log.debug("OldStats: sent {} events", batch.size)
+        httpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                log.warn("OldStats: failed to reach server, requeueing {} events: {}", batch.size, e.message)
+                batch.forEach { enqueue(it) }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                response.use {
+                    if (!it.isSuccessful) {
+                        log.warn("OldStats: server rejected batch of {} events: {}", batch.size, it.code())
+                        batch.forEach { event -> enqueue(event) }
+                    } else {
+                        log.debug("OldStats: sent {} events", batch.size)
+                    }
                 }
             }
-        } catch (e: Exception) {
-            log.warn("OldStats: failed to reach server, requeueing {} events: {}", batch.size, e.message)
-            batch.forEach { enqueue(it) }
-        }
+        })
     }
 }

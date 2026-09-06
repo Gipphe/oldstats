@@ -4,7 +4,7 @@ import com.oldstats.api.OldStatsApiClient
 import com.oldstats.api.StatEvent
 import net.runelite.api.Client
 import net.runelite.api.Quest
-import net.runelite.api.VarPlayer
+import net.runelite.api.gameval.VarPlayerID
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -45,7 +45,7 @@ class QuestTrackerTest {
             null
         }
         whenever(client.intStack).thenAnswer { intArrayOf(questStateCodes[lastQueriedQuestId] ?: 1) }
-        whenever(client.getVarpValue(VarPlayer.QUEST_POINTS)).thenReturn(42)
+        whenever(client.getVarpValue(VarPlayerID.QP)).thenReturn(42)
     }
 
     @Test
