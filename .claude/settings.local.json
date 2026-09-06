@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nix shell *)",
+      "Bash(curl *)",
+      "Bash(nix registry *)",
+      "Bash(nix flake *)",
+      "Bash(nix develop *)",
+      "Bash(mkdir -p /tmp/rlapi)",
+      "Read(//tmp/**)"
+    ]
+  }
+}

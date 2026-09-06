@@ -1,0 +1,164 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+
+.page h1 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.muted {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.error {
+  color: var(--status-critical);
+  font-size: 13px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.list-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--gridline);
+  font-size: 13px;
+}
+
+.list-item:last-child {
+  border-bottom: none;
+}
+
+.list-item-meta {
+  color: var(--text-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.inline-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-left: var(--space-1);
+}
+
+.highlight-list {
+  margin: 0;
+  padding-left: 1.1em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: 14px;
+}
+
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.week-nav button {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.week-nav button:disabled {
+  opacity: 0.4;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  gap: var(--space-2);
+  padding-bottom: var(--space-1);
+}
+
+.tab-button {
+  flex-shrink: 0;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-3);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.tab-button.active {
+  background: var(--series-1);
+  border-color: var(--series-1);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.player-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.player-list-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.player-list-item.active {
+  border-color: var(--series-1);
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--series-1);
+}
+
+.refresh-button {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
