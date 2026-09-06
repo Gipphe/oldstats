@@ -51,41 +51,44 @@ export function DashboardPage() {
       <h1>{selectedPlayer.username}</h1>
 
       <div className="stat-grid">
-        <StatTile label="Total XP" value={overview.data ? formatNumber(overview.data.totalXpGained) : "—"} />
-        <StatTile label="Kills" value={overview.data ? formatNumber(overview.data.totalKills) : "—"} />
-        <StatTile label="Boss kills" value={overview.data ? formatNumber(overview.data.totalBossKills) : "—"} />
-        <StatTile label="Loot value" value={overview.data ? `${formatGp(overview.data.totalDropValue)} gp` : "—"} />
-        <StatTile label="Quests done" value={overview.data ? formatNumber(overview.data.questsCompleted) : "—"} />
-        <StatTile label="Slayer tasks" value={overview.data ? formatNumber(overview.data.slayerTasksCompleted) : "—"} />
+        <StatTile tone="xp" label="Total XP" value={overview.data ? formatNumber(overview.data.totalXpGained) : "—"} />
+        <StatTile tone="combat" label="Kills" value={overview.data ? formatNumber(overview.data.totalKills) : "—"} />
+        <StatTile tone="boss" label="Boss kills" value={overview.data ? formatNumber(overview.data.totalBossKills) : "—"} />
+        <StatTile tone="economy" label="Loot value" value={overview.data ? `${formatGp(overview.data.totalDropValue)} gp` : "—"} />
+        <StatTile tone="progression" label="Quests done" value={overview.data ? formatNumber(overview.data.questsCompleted) : "—"} />
+        <StatTile tone="boss" label="Slayer tasks" value={overview.data ? formatNumber(overview.data.slayerTasksCompleted) : "—"} />
         <StatTile
+          tone="collectible"
           label="Collection log"
           value={overview.data ? formatNumber(overview.data.collectionLogTotalUnlocked) : "—"}
           sublabel={overview.data?.collectionLogTotalPossible ? `of ${overview.data.collectionLogTotalPossible}` : undefined}
         />
         <StatTile
+          tone="prestige"
           label="Combat achievements"
           value={overview.data ? formatNumber(overview.data.combatAchievementsCompleted) : "—"}
           sublabel={overview.data ? `${formatNumber(overview.data.combatAchievementPoints)} points` : undefined}
         />
-        <StatTile label="Diaries completed" value={overview.data ? formatNumber(overview.data.diariesCompleted) : "—"} />
-        <StatTile label="Clues completed" value={overview.data ? formatNumber(overview.data.cluesCompleted) : "—"} />
-        <StatTile label="Pets received" value={overview.data ? formatNumber(overview.data.petsReceived) : "—"} />
+        <StatTile tone="progression" label="Diaries completed" value={overview.data ? formatNumber(overview.data.diariesCompleted) : "—"} />
+        <StatTile tone="collectible" label="Clues completed" value={overview.data ? formatNumber(overview.data.cluesCompleted) : "—"} />
+        <StatTile tone="companion" label="Pets received" value={overview.data ? formatNumber(overview.data.petsReceived) : "—"} />
         <StatTile
+          tone="combat"
           label="PvP K/D"
           value={kdr}
           sublabel={overview.data ? `${overview.data.playerKills} kills, ${overview.data.playerDeaths} deaths` : undefined}
         />
-        <StatTile label="Net worth" value={overview.data?.netWorth != null ? `${formatGp(overview.data.netWorth)} gp` : "—"} />
+        <StatTile tone="economy" label="Net worth" value={overview.data?.netWorth != null ? `${formatGp(overview.data.netWorth)} gp` : "—"} />
       </div>
 
-      <SectionCard title="XP by skill">
+      <SectionCard title="XP by skill" accent="var(--series-1)">
         <BarChart
           data={(xpBySkill.data ?? []).slice(0, 8).map((s) => ({ label: titleCase(s.skill), value: s.xpGained }))}
           emptyMessage="No XP tracked yet"
         />
       </SectionCard>
 
-      <SectionCard title="Most killed">
+      <SectionCard title="Most killed" accent="var(--series-2)">
         <BarChart
           data={(killsByNpc.data ?? []).slice(0, 8).map((k) => ({
             label: k.npcName,
@@ -96,7 +99,7 @@ export function DashboardPage() {
         />
       </SectionCard>
 
-      <SectionCard title="Net worth over time">
+      <SectionCard title="Net worth over time" accent="var(--series-3)">
         <LineChart
           data={(netWorth.data ?? [])
             .slice()
@@ -107,7 +110,7 @@ export function DashboardPage() {
         />
       </SectionCard>
 
-      <SectionCard title="Worlds played">
+      <SectionCard title="Worlds played" accent="var(--series-7)">
         <BarChart
           data={(worlds.data ?? []).slice(0, 8).map((w) => ({
             label: `World ${w.world}`,

@@ -1,0 +1,47 @@
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
+  border-bottom: 2px solid var(--series-1);
+  box-shadow: var(--panel-shadow);
+  flex-shrink: 0;
+}
+
+.app-header-emblem {
+  color: var(--series-1);
+  filter: drop-shadow(0 0 4px rgba(224, 160, 32, 0.5));
+  flex-shrink: 0;
+}
+
+.app-header-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: var(--series-1);
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .app-header-title {
+    color: transparent;
+  }
+}
+
+.app-header-player {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}

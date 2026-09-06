@@ -51,8 +51,8 @@ export function BankPage() {
       {data && data.items.length > 0 && (
         <>
           <div className="stat-grid">
-            <StatTile label="Total value" value={`${formatGp(data.totalValue)} gp`} />
-            <StatTile label="Unique items" value={formatNumber(data.itemCount)} />
+            <StatTile tone="economy" label="Total value" value={`${formatGp(data.totalValue)} gp`} />
+            <StatTile tone="collectible" label="Unique items" value={formatNumber(data.itemCount)} />
           </div>
           {data.lastSyncedAt && <p className="muted">Last synced {formatDateTime(data.lastSyncedAt)}</p>}
 
@@ -64,7 +64,7 @@ export function BankPage() {
             onChange={(e) => setQuery(e.target.value)}
           />
 
-          <SectionCard title={`Items (${filteredItems.length})`}>
+          <SectionCard title={`Items (${filteredItems.length})`} accent="var(--series-3)">
             {filteredItems.length === 0 ? (
               <p className="muted">No items match "{query}"</p>
             ) : (

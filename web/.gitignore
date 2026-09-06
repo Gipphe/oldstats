@@ -18,6 +18,9 @@ dist-ssr
 /playwright-report/
 /e2e/.tmp/
 
+# scripts/screenshot-app.ts default output
+/.screenshots/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

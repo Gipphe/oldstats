@@ -34,6 +34,9 @@
   --status-serious: #ec835a;
   --status-critical: #d9534f;
 
+  --gold-gradient: linear-gradient(180deg, #fbe08a 0%, #dba846 45%, #96691c 100%);
+  --panel-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -75,6 +78,9 @@
   --status-warning: #8a6000;
   --status-serious: #a0522d;
   --status-critical: #a02020;
+
+  --gold-gradient: linear-gradient(180deg, #caa036 0%, #8a6118 100%);
+  --panel-shadow: 0 4px 10px rgba(43, 30, 15, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 * {
@@ -89,6 +95,10 @@ body {
 
 body {
   background: var(--surface-2);
+  background:
+    radial-gradient(ellipse 900px 400px at 50% -10%, rgba(224, 160, 32, 0.08), transparent 70%),
+    repeating-linear-gradient(135deg, rgba(0, 0, 0, 0.05) 0px, rgba(0, 0, 0, 0.05) 1px, transparent 1px, transparent 7px),
+    var(--surface-2);
   color: var(--text-primary);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;

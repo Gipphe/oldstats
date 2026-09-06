@@ -71,38 +71,42 @@ export function WrapUpPage() {
           </SectionCard>
 
           <div className="stat-grid">
-            <StatTile label="XP gained" value={formatNumber(data.totalXpGained)} />
-            <StatTile label="Kills" value={formatNumber(data.totalKills)} sublabel={`${data.bossKills} boss`} />
-            <StatTile label="Loot value" value={`${formatGp(data.totalDropValue)} gp`} />
+            <StatTile tone="xp" label="XP gained" value={formatNumber(data.totalXpGained)} />
+            <StatTile tone="combat" label="Kills" value={formatNumber(data.totalKills)} sublabel={`${data.bossKills} boss`} />
+            <StatTile tone="economy" label="Loot value" value={`${formatGp(data.totalDropValue)} gp`} />
             <StatTile
+              tone="boss"
               label="Slayer tasks"
               value={formatNumber(data.slayerTasksCompleted)}
               sublabel={data.topSlayerMonster ?? undefined}
             />
             <StatTile
+              tone="combat"
               label="PvP"
               value={`${data.playerKills}-${data.playerDeaths}`}
               sublabel="kills-deaths"
             />
             <StatTile
+              tone="economy"
               label="Net worth"
               value={data.netWorthChange != null ? `${data.netWorthChange >= 0 ? "+" : ""}${formatGp(data.netWorthChange)} gp` : "—"}
             />
             <StatTile
+              tone="world"
               label="Top world"
               value={data.topWorld ? `World ${data.topWorld.world}` : "—"}
               sublabel={data.topWorld ? `${Math.round(data.topWorld.minutes)}m` : undefined}
             />
           </div>
 
-          <SectionCard title="Top skills">
+          <SectionCard title="Top skills" accent="var(--series-1)">
             <BarChart
               data={data.topSkills.map((s) => ({ label: titleCase(s.skill), value: s.xpGained }))}
               emptyMessage="No XP this week"
             />
           </SectionCard>
 
-          <SectionCard title="Most killed">
+          <SectionCard title="Most killed" accent="var(--series-2)">
             <BarChart
               data={data.topMonsters.map((m) => ({
                 label: m.npcName,
@@ -113,7 +117,7 @@ export function WrapUpPage() {
             />
           </SectionCard>
 
-          <SectionCard title="Best drops">
+          <SectionCard title="Best drops" accent="var(--series-3)">
             {data.bestDrops.length === 0 ? (
               <p className="muted">No notable drops this week</p>
             ) : (
@@ -128,7 +132,7 @@ export function WrapUpPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Quests completed">
+          <SectionCard title="Quests completed" accent="var(--series-6)">
             {data.questsCompleted.length === 0 ? (
               <p className="muted">No quests completed this week</p>
             ) : (
@@ -142,11 +146,11 @@ export function WrapUpPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Farming">
+          <SectionCard title="Farming" accent="var(--series-6)">
             <p className="muted">{data.farmingHarvests} patch(es) harvested this week</p>
           </SectionCard>
 
-          <SectionCard title="Collection log">
+          <SectionCard title="Collection log" accent="var(--series-5)">
             {data.collectionLogUnlocks.length === 0 ? (
               <p className="muted">No new collection log items this week</p>
             ) : (
@@ -160,7 +164,7 @@ export function WrapUpPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Combat achievements">
+          <SectionCard title="Combat achievements" accent="var(--series-7)">
             {data.combatAchievementsCompleted.length === 0 ? (
               <p className="muted">No combat achievements completed this week</p>
             ) : (
@@ -179,7 +183,7 @@ export function WrapUpPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Achievement diaries">
+          <SectionCard title="Achievement diaries" accent="var(--series-6)">
             {data.diariesCompleted.length === 0 ? (
               <p className="muted">No diaries completed this week</p>
             ) : (
@@ -195,7 +199,7 @@ export function WrapUpPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Clue scrolls">
+          <SectionCard title="Clue scrolls" accent="var(--series-5)">
             {data.cluesCompleted.length === 0 ? (
               <p className="muted">No clue scrolls completed this week</p>
             ) : (
@@ -209,7 +213,7 @@ export function WrapUpPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Pets">
+          <SectionCard title="Pets" accent="var(--series-8)">
             {data.petsReceived.length === 0 ? (
               <p className="muted">No pets received this week</p>
             ) : (
@@ -223,7 +227,7 @@ export function WrapUpPage() {
             )}
           </SectionCard>
 
-          <SectionCard title="Personal bests">
+          <SectionCard title="Personal bests" accent="var(--series-4)">
             {data.personalBests.length === 0 ? (
               <p className="muted">No new personal bests this week</p>
             ) : (

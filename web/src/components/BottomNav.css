@@ -2,11 +2,12 @@
   position: sticky;
   bottom: 0;
   display: flex;
-  background: var(--surface-1);
+  background: linear-gradient(180deg, var(--surface-1), var(--surface-2));
   border-top: 1px solid var(--border);
   padding-bottom: var(--safe-bottom);
   height: calc(var(--nav-height) + var(--safe-bottom));
   flex-shrink: 0;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .bottom-nav-item {
@@ -20,8 +21,28 @@
   color: var(--text-muted);
   font-size: 11px;
   -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+
+.bottom-nav-item svg {
+  position: relative;
+  z-index: 1;
 }
 
 .bottom-nav-item.active {
   color: var(--series-1);
+}
+
+.bottom-nav-item.active::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(224, 160, 32, 0.28), transparent 70%);
+}
+
+.bottom-nav-item.active svg {
+  filter: drop-shadow(0 0 3px rgba(224, 160, 32, 0.6));
 }

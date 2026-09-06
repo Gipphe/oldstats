@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { AppHeader } from "./components/AppHeader";
 import { BottomNav } from "./components/BottomNav";
 import { ActivityPage } from "./pages/ActivityPage";
 import { BankPage } from "./pages/BankPage";
@@ -9,6 +10,7 @@ import { WrapUpPage } from "./pages/WrapUpPage";
 export function App() {
   return (
     <div className="app-shell">
+      <AppHeader />
       <main className="app-content">
         <Routes>
           <Route path="/" element={<DashboardPage />} />

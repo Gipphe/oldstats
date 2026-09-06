@@ -87,7 +87,7 @@ export function ActivityPage() {
 function KillsTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.kills(playerId, {}, 100), [playerId]);
   return (
-    <SectionCard title="Recent kills">
+    <SectionCard title="Recent kills" accent="var(--series-2)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((k, i) => (
@@ -107,7 +107,7 @@ function KillsTab({ playerId }: { playerId: number }) {
 function DropsTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.drops(playerId, {}, 100), [playerId]);
   return (
-    <SectionCard title="Recent drops">
+    <SectionCard title="Recent drops" accent="var(--series-3)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((d, i) => (
@@ -129,7 +129,7 @@ function DropsTab({ playerId }: { playerId: number }) {
 function QuestsTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.quests(playerId), [playerId]);
   return (
-    <SectionCard title="Quests">
+    <SectionCard title="Quests" accent="var(--series-6)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((q, i) => (
@@ -147,7 +147,7 @@ function QuestsTab({ playerId }: { playerId: number }) {
 function SlayerTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.slayerTasks(playerId, {}, 100), [playerId]);
   return (
-    <SectionCard title="Slayer tasks">
+    <SectionCard title="Slayer tasks" accent="var(--series-4)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((t, i) => (
@@ -168,7 +168,7 @@ function SlayerTab({ playerId }: { playerId: number }) {
 function FarmingTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.farmingPatches(playerId), [playerId]);
   return (
-    <SectionCard title="Farming patches">
+    <SectionCard title="Farming patches" accent="var(--series-6)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((f, i) => (
@@ -189,7 +189,7 @@ function FarmingTab({ playerId }: { playerId: number }) {
 function CollectionLogTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.collectionLog(playerId, {}, 200), [playerId]);
   return (
-    <SectionCard title="Collection log unlocks">
+    <SectionCard title="Collection log unlocks" accent="var(--series-5)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((c, i) => (
@@ -207,7 +207,7 @@ function CollectionLogTab({ playerId }: { playerId: number }) {
 function CombatAchievementsTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.combatAchievements(playerId, {}, 200), [playerId]);
   return (
-    <SectionCard title="Combat achievements">
+    <SectionCard title="Combat achievements" accent="var(--series-7)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((c, i) => (
@@ -225,7 +225,7 @@ function CombatAchievementsTab({ playerId }: { playerId: number }) {
 function DiariesTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.diaries(playerId), [playerId]);
   return (
-    <SectionCard title="Achievement diaries">
+    <SectionCard title="Achievement diaries" accent="var(--series-6)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((d, i) => (
@@ -245,7 +245,7 @@ function DiariesTab({ playerId }: { playerId: number }) {
 function CluesTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.clues(playerId, {}, 200), [playerId]);
   return (
-    <SectionCard title="Clue scrolls">
+    <SectionCard title="Clue scrolls" accent="var(--series-5)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((c, i) => (
@@ -263,7 +263,7 @@ function CluesTab({ playerId }: { playerId: number }) {
 function PetsTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.pets(playerId, {}, 200), [playerId]);
   return (
-    <SectionCard title="Pets">
+    <SectionCard title="Pets" accent="var(--series-8)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((p, i) => (
@@ -281,7 +281,7 @@ function PetsTab({ playerId }: { playerId: number }) {
 function PersonalBestsTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.personalBests(playerId), [playerId]);
   return (
-    <SectionCard title="Personal bests">
+    <SectionCard title="Personal bests" accent="var(--series-4)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((p, i) => (
@@ -299,7 +299,7 @@ function PersonalBestsTab({ playerId }: { playerId: number }) {
 function PvpKillsTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.playerKills(playerId, {}, 100), [playerId]);
   return (
-    <SectionCard title="PvP kills">
+    <SectionCard title="PvP kills" accent="var(--series-2)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((k, i) => (
@@ -317,7 +317,7 @@ function PvpKillsTab({ playerId }: { playerId: number }) {
 function PvpDeathsTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.playerDeaths(playerId, {}, 100), [playerId]);
   return (
-    <SectionCard title="Deaths">
+    <SectionCard title="Deaths" accent="var(--series-8)">
       {loading && <p className="muted">Loading…</p>}
       <ul className="list">
         {(data ?? []).map((d, i) => (

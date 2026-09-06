@@ -1,3 +1,4 @@
+import { useId } from "react";
 import "./LineChart.css";
 
 export interface LineChartPoint {
@@ -16,6 +17,8 @@ const HEIGHT = 100;
 const PAD = 6;
 
 export function LineChart({ data, valueFormatter = (v) => v.toLocaleString(), emptyMessage = "No data yet" }: LineChartProps) {
+  const gradientId = useId();
+
   if (data.length < 2) {
     return <p className="linechart-empty">{emptyMessage}</p>;
   }
@@ -41,7 +44,13 @@ export function LineChart({ data, valueFormatter = (v) => v.toLocaleString(), em
   return (
     <div className="linechart">
       <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} preserveAspectRatio="none" className="linechart-svg" role="img" aria-label={`${valueFormatter(first.value)} to ${valueFormatter(last.value)}`}>
-        <path d={areaPath} className="linechart-area" />
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" style={{ stopColor: "var(--series-1)", stopOpacity: 0.4 }} />
+            <stop offset="100%" style={{ stopColor: "var(--series-1)", stopOpacity: 0 }} />
+          </linearGradient>
+        </defs>
+        <path d={areaPath} className="linechart-area" fill={`url(#${gradientId})`} />
         <path d={linePath} className="linechart-line" />
         <circle cx={points[points.length - 1].x} cy={points[points.length - 1].y} r="3" className="linechart-dot" />
       </svg>

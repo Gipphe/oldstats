@@ -1,18 +1,81 @@
 .stat-tile {
+  --tone-color: var(--series-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: linear-gradient(155deg, var(--surface-1), var(--surface-2) 160%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.stat-tile::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--tone-color);
+  box-shadow: 0 0 6px var(--tone-color);
+}
+
+.stat-tile[data-tone="xp"],
+.stat-tile[data-tone="world"] {
+  --tone-color: var(--series-1);
+}
+.stat-tile[data-tone="combat"] {
+  --tone-color: var(--series-2);
+}
+.stat-tile[data-tone="economy"] {
+  --tone-color: var(--series-3);
+}
+.stat-tile[data-tone="boss"] {
+  --tone-color: var(--series-4);
+}
+.stat-tile[data-tone="collectible"] {
+  --tone-color: var(--series-5);
+}
+.stat-tile[data-tone="progression"] {
+  --tone-color: var(--series-6);
+}
+.stat-tile[data-tone="prestige"] {
+  --tone-color: var(--series-7);
+}
+.stat-tile[data-tone="companion"] {
+  --tone-color: var(--series-8);
+}
+
+.stat-tile-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tone-color);
+  background: var(--surface-2);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--tone-color) 22%, var(--surface-1)), var(--surface-2));
+  border: 1px solid var(--border);
+}
+
+.stat-tile-body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  background: var(--surface-1);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--series-1);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
   min-width: 0;
 }
 
 .stat-tile-value {
   font-family: var(--font-display);
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;

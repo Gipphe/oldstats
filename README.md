@@ -99,6 +99,19 @@ NixOS, delete the `PLAYWRIGHT_BROWSERS_PATH`/`PLAYWRIGHT_SKIP_VALIDATE_HOST_REQU
 exports from the flake's `shellHook` and run `npx playwright install
 chromium` once instead — any reasonably recent `@playwright/test` will do.
 
+### 5. Screenshots
+
+```
+cd web
+npm run screenshot -- /path/to/output/dir   # defaults to web/.screenshots/
+```
+
+Seeds the same throwaway server + fixed dataset as the e2e suite, starts Vite
+against it, drives a headless `chromium` (from PATH — override with
+`CHROMIUM_BIN`) over the DevTools protocol, and dumps a full-height PNG of
+every page and Activity tab. Don't run it alongside `npm run test:e2e` — both
+use the same server port and temp DB. See `web/scripts/screenshot-app.ts`.
+
 ## Notes and known limitations
 
 - **Self-hosted, single/small group use.** The web app's read endpoints are
