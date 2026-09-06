@@ -121,7 +121,7 @@ class OldStatsPlugin : Plugin() {
         )
         xpTracker = XpTracker(apiClient)
         lootTracker = LootTracker(apiClient, itemManager)
-        questTracker = QuestTracker(apiClient, client)
+        questTracker = QuestTracker(apiClient, client, clientThread)
         slayerTracker = SlayerTracker(apiClient, client)
         farmingTracker = FarmingTracker(apiClient, client)
         collectionLogTracker = CollectionLogTracker(apiClient, client, itemManager)

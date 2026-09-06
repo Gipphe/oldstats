@@ -151,11 +151,27 @@ class OldStatsApiClientTest {
         }
         apiClient.flush()
 
+        // MAX_BATCH_SIZE is 1000, so the 5000 remaining events go out as 5 batches.
         val captor = argumentCaptor<Request>()
-        verify(httpClient).newCall(captor.capture())
-        val body = bodyText(captor.firstValue)
-        assertTrue("evicted event (world 0) must not be present", !body.contains("\"world\":0,"))
-        assertTrue("most recent event (world 5000) must be present", body.contains("\"world\":5000"))
+        verify(httpClient, times(5)).newCall(captor.capture())
+        val allBodies = captor.allValues.joinToString("\n") { bodyText(it) }
+        assertTrue("evicted event (world 0) must not be present", !allBodies.contains("\"world\":0,"))
+        assertTrue("most recent event (world 5000) must be present", allBodies.contains("\"world\":5000"))
+    }
+
+    @Test
+    fun `caps each request at MAX_BATCH_SIZE events even when far more are queued`() {
+        stubSuccess(call, response(successful = true))
+        for (i in 0 until 2500) {
+            apiClient.enqueue(event(world = i))
+        }
+        apiClient.flush()
+
+        val captor = argumentCaptor<Request>()
+        verify(httpClient, times(3)).newCall(captor.capture())
+        val batchSizes = captor.allValues.map { bodyText(it).split("\"type\"").size - 1 }
+        assertTrue("no batch should exceed 1000 events, got $batchSizes", batchSizes.all { it <= 1000 })
+        assertEquals(2500, batchSizes.sum())
     }
 
     private fun bodyText(request: Request): String {

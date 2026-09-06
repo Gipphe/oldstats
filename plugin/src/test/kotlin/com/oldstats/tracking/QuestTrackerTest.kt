@@ -5,12 +5,14 @@ import com.oldstats.api.StatEvent
 import net.runelite.api.Client
 import net.runelite.api.Quest
 import net.runelite.api.gameval.VarPlayerID
+import net.runelite.client.callback.ClientThread
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyVararg
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
@@ -27,6 +29,7 @@ import org.mockito.kotlin.whenever
 class QuestTrackerTest {
     private lateinit var apiClient: OldStatsApiClient
     private lateinit var client: Client
+    private lateinit var clientThread: ClientThread
     private lateinit var tracker: QuestTracker
 
     /** questId -> state code. Defaults to 1 (NOT_STARTED) for any quest not listed. */
@@ -37,8 +40,14 @@ class QuestTrackerTest {
     fun setUp() {
         apiClient = mock()
         client = mock()
-        tracker = QuestTracker(apiClient, client)
+        clientThread = mock()
+        tracker = QuestTracker(apiClient, client, clientThread)
         questStateCodes.clear()
+
+        // Run the deferred client-thread callback synchronously so tests can assert immediately.
+        doAnswer { invocation -> (invocation.getArgument(0) as Runnable).run() }
+            .whenever(clientThread)
+            .invokeLater(any<Runnable>())
 
         whenever(client.runScript(anyVararg())).thenAnswer { invocation ->
             lastQueriedQuestId = invocation.arguments[1] as Int

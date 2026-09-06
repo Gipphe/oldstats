@@ -32,6 +32,10 @@ class OldStatsApiClient(
 
     companion object {
         private const val MAX_QUEUE_SIZE = 5000
+
+        // Must not exceed the server's `ingestBatch.events.max(...)` (server/src/types/events.ts) —
+        // a batch bigger than that gets the whole request rejected with 400, not partially accepted.
+        private const val MAX_BATCH_SIZE = 1000
     }
 
     fun enqueue(event: StatEvent) {
@@ -43,9 +47,20 @@ class OldStatsApiClient(
     }
 
     /**
-     * Drains the queue and sends everything in one batch. Never blocks the calling
-     * thread — the request is dispatched via OkHttp's own threadpool ([Call.enqueue]),
-     * so this is also safe to call from `shutDown()`/`startUp()`.
+     * Drains the queue and sends it in batches of at most [MAX_BATCH_SIZE].
+     * Never blocks the calling thread — each batch is dispatched via OkHttp's
+     * own threadpool ([Call.enqueue]), so this is also safe to call from
+     * `shutDown()`/`startUp()`.
+     *
+     * Bounded to a snapshot of the queue size taken up front, not "keep
+     * going until empty": a failed batch gets requeued (see [sendBatch]),
+     * and looping on live queue state would retry it inline, immediately,
+     * forever, if a failure ever completes synchronously within the same
+     * call stack (never true for real OkHttp, whose callbacks always run on
+     * its own dispatcher thread — but true of a naive synchronous test
+     * double, and not a risk worth depending on OkHttp's async guarantee
+     * for). Anything requeued this way is simply picked up by the next
+     * scheduled flush() instead.
      */
     fun flush() {
         if (queue.isEmpty()) return
@@ -56,14 +71,21 @@ class OldStatsApiClient(
             return
         }
 
-        val batch = ArrayList<StatEvent>(queueSize.get())
-        while (true) {
-            val event = queue.poll() ?: break
-            queueSize.decrementAndGet()
-            batch.add(event)
+        var remaining = queueSize.get()
+        while (remaining > 0) {
+            val batch = ArrayList<StatEvent>(minOf(remaining, MAX_BATCH_SIZE))
+            while (batch.size < MAX_BATCH_SIZE && batch.size < remaining) {
+                val event = queue.poll() ?: break
+                queueSize.decrementAndGet()
+                batch.add(event)
+            }
+            if (batch.isEmpty()) break
+            remaining -= batch.size
+            sendBatch(batch, apiKey)
         }
-        if (batch.isEmpty()) return
+    }
 
+    private fun sendBatch(batch: List<StatEvent>, apiKey: String) {
         val serverUrl = serverUrlProvider().trimEnd('/')
         val body = gson.toJson(mapOf("events" to batch))
         val request = Request.Builder()
@@ -81,7 +103,12 @@ class OldStatsApiClient(
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     if (!it.isSuccessful) {
-                        log.warn("OldStats: server rejected batch of {} events: {}", batch.size, it.code())
+                        log.warn(
+                            "OldStats: server rejected batch of {} events: {} {}",
+                            batch.size,
+                            it.code(),
+                            it.body()?.string(),
+                        )
                         batch.forEach { event -> enqueue(event) }
                     } else {
                         log.debug("OldStats: sent {} events", batch.size)
