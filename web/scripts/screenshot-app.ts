@@ -109,6 +109,24 @@ function waitForHttpOrExit(url: string, child: ChildProcess, label: string, time
 }
 
 /**
+ * Even after the chromium process has exited, a lingering crashpad handler
+ * or delayed filesystem flush can still occasionally race a single rmSync
+ * with ENOTEMPTY. A few retries with a short backoff clears that up without
+ * leaking the temp profile dir.
+ */
+async function removeDirWithRetry(dir: string, attempts = 5): Promise<void> {
+  for (let i = 0; i < attempts; i++) {
+    try {
+      rmSync(dir, { recursive: true, force: true });
+      return;
+    } catch (err) {
+      if (i === attempts - 1) throw err;
+      await new Promise((r) => setTimeout(r, 150));
+    }
+  }
+}
+
+/**
  * Defaults to the `chromium` on PATH (the flake devShell puts nixpkgs'
  * chromium there). Override with CHROMIUM_BIN if that's not right for your
  * setup — the chrome process's own error output will say why it failed.
@@ -213,9 +231,11 @@ async function main() {
   }
 
   console.log("Cleaning up...");
+  const chromeExited = new Promise((resolvePromise) => chrome.once("exit", resolvePromise));
   chrome.kill("SIGKILL");
   vite.kill("SIGKILL");
-  rmSync(chromeProfileDir, { recursive: true, force: true });
+  await chromeExited; // otherwise rmSync can race chromium's own final writes and throw ENOTEMPTY
+  await removeDirWithRetry(chromeProfileDir);
   await globalTeardown();
 
   console.log(`Done. Screenshots are in ${OUT_DIR}`);

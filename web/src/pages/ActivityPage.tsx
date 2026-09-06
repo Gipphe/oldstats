@@ -6,6 +6,7 @@ import { ScrollFadeRow } from "../components/ScrollFadeRow";
 import { SectionCard } from "../components/SectionCard";
 import { useApiData } from "../hooks/useApiData";
 import { formatDateTime, formatDuration, formatGp, titleCase } from "../lib/format";
+import type { DiaryTaskProgress } from "../api/types";
 import { usePlayer } from "../state/PlayerContext";
 import "../styles/shared.css";
 
@@ -227,23 +228,95 @@ function CombatAchievementsTab({ playerId }: { playerId: number }) {
   );
 }
 
+const TIER_ORDER = ["EASY", "MEDIUM", "HARD", "ELITE"];
+
+function groupDiaryTasks(tasks: DiaryTaskProgress[]) {
+  const byArea = new Map<string, Map<string, DiaryTaskProgress[]>>();
+  for (const t of tasks) {
+    const tierMap = byArea.get(t.diaryArea) ?? new Map();
+    byArea.set(t.diaryArea, tierMap);
+    const tierList = tierMap.get(t.tier) ?? [];
+    tierList.push(t);
+    tierMap.set(t.tier, tierList);
+  }
+  return byArea;
+}
+
+function TaskCheckIcon({ completed }: { completed: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" className="diary-task-check">
+      {completed ? (
+        <>
+          <circle cx="8" cy="8" r="7" fill="var(--status-good)" />
+          <path d="M4.5 8.2l2.2 2.2L11.5 5.5" fill="none" stroke="var(--surface-1)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </>
+      ) : (
+        <circle cx="8" cy="8" r="6.3" fill="none" stroke="var(--text-muted)" strokeWidth="1.4" />
+      )}
+    </svg>
+  );
+}
+
 function DiariesTab({ playerId }: { playerId: number }) {
   const { data, loading } = useApiData(() => api.diaries(playerId), [playerId]);
+  const { data: taskData, loading: taskLoading } = useApiData(() => api.diaryTasks(playerId), [playerId]);
+
+  const grouped = groupDiaryTasks(taskData ?? []);
+
   return (
-    <SectionCard title="Achievement diaries" accent="var(--series-6)">
-      {loading && <p className="muted">Loading…</p>}
-      <ul className="list">
-        {(data ?? []).map((d, i) => (
-          <li key={i} className="list-item">
-            <span>
-              {titleCase(d.diaryArea)} — {titleCase(d.tier)}
-            </span>
-            <span className="list-item-meta">{formatDateTime(d.ts)}</span>
-          </li>
+    <>
+      <SectionCard title="Achievement diaries" accent="var(--series-6)">
+        {loading && <p className="muted">Loading…</p>}
+        <ul className="list">
+          {(data ?? []).map((d, i) => (
+            <li key={i} className="list-item">
+              <span>
+                {titleCase(d.diaryArea)} — {titleCase(d.tier)}
+              </span>
+              <span className="list-item-meta">{formatDateTime(d.ts)}</span>
+            </li>
+          ))}
+        </ul>
+        {!loading && (data ?? []).length === 0 && <p className="muted">No diaries completed yet</p>}
+      </SectionCard>
+
+      <SectionCard title="Diary task progress" accent="var(--series-6)">
+        {taskLoading && <p className="muted">Loading…</p>}
+        {!taskLoading && grouped.size === 0 && (
+          <p className="muted">
+            No task progress seen yet — open a diary journal page in-game (Quest List → Achievement Diaries) with
+            the plugin running to record which individual tasks are done.
+          </p>
+        )}
+        {[...grouped.entries()].map(([area, tierMap]) => (
+          <div key={area} className="diary-area-group">
+            <p className="diary-area-heading">{titleCase(area)}</p>
+            {[...tierMap.entries()]
+              .sort(([a], [b]) => TIER_ORDER.indexOf(a) - TIER_ORDER.indexOf(b))
+              .map(([tier, tasks]) => {
+                const completedCount = tasks.filter((t) => t.completed).length;
+                return (
+                  <div key={tier} className="diary-tier-group">
+                    <p className="diary-tier-heading">
+                      {titleCase(tier)} <span className="muted">({completedCount}/{tasks.length})</span>
+                    </p>
+                    <ul className="list">
+                      {tasks.map((t, i) => (
+                        <li key={i} className="list-item">
+                          <span className="list-item-name">
+                            <TaskCheckIcon completed={!!t.completed} />
+                            {t.taskName}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+          </div>
         ))}
-      </ul>
-      {!loading && (data ?? []).length === 0 && <p className="muted">No diaries completed yet</p>}
-    </SectionCard>
+      </SectionCard>
+    </>
   );
 }
 

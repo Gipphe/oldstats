@@ -132,6 +132,61 @@ describe("ingestEvents", () => {
     expect(rows[0].total_unlocked).toBe(46);
   });
 
+  it("upserts diary task progress, keyed by (player, area, tier, task), flipping completed in place", () => {
+    ingest([
+      {
+        type: "diary_task_progress",
+        diaryArea: "ARDOUGNE",
+        tier: "EASY",
+        taskName: "Enter the Wilderness",
+        completed: false,
+        ts: "2026-01-01T00:00:00.000Z",
+      },
+    ]);
+    ingest([
+      {
+        type: "diary_task_progress",
+        diaryArea: "ARDOUGNE",
+        tier: "EASY",
+        taskName: "Enter the Wilderness",
+        completed: true,
+        ts: "2026-01-02T00:00:00.000Z",
+      },
+    ]);
+    const rows = db.prepare("SELECT * FROM diary_task_progress WHERE player_id = ?").all(playerId) as {
+      completed: number;
+      ts: string;
+    }[];
+    expect(rows).toHaveLength(1);
+    expect(rows[0].completed).toBe(1);
+    expect(rows[0].ts).toBe("2026-01-02T00:00:00.000Z");
+  });
+
+  it("tracks diary tasks independently per area and tier", () => {
+    ingest([
+      {
+        type: "diary_task_progress",
+        diaryArea: "ARDOUGNE",
+        tier: "EASY",
+        taskName: "Enter the Wilderness",
+        completed: true,
+        ts: "2026-01-01T00:00:00.000Z",
+      },
+      {
+        type: "diary_task_progress",
+        diaryArea: "ARDOUGNE",
+        tier: "MEDIUM",
+        taskName: "Steal from the Ardougne market stalls",
+        completed: false,
+        ts: "2026-01-01T00:00:00.000Z",
+      },
+    ]);
+    const rows = db.prepare("SELECT tier FROM diary_task_progress WHERE player_id = ? ORDER BY tier").all(
+      playerId,
+    ) as { tier: string }[];
+    expect(rows.map((r) => r.tier)).toEqual(["EASY", "MEDIUM"]);
+  });
+
   it("applies an entire batch atomically", () => {
     ingest([
       { type: "clue_completed", tier: "Elite", count: 1, ts: "2026-01-01T00:00:00.000Z" },

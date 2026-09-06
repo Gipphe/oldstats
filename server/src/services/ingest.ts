@@ -49,6 +49,13 @@ export function ingestEvents(db: Database, playerId: number, events: IngestEvent
      ON CONFLICT(player_id, diary_area, tier) DO UPDATE SET
        ts = excluded.ts`
   );
+  const upsertDiaryTaskProgress = db.prepare(
+    `INSERT INTO diary_task_progress (player_id, diary_area, tier, task_name, completed, ts)
+     VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT(player_id, diary_area, tier, task_name) DO UPDATE SET
+       completed = excluded.completed,
+       ts = excluded.ts`
+  );
   const insertClue = db.prepare(
     `INSERT INTO clue_completions (player_id, tier, count, ts) VALUES (?, ?, ?, ?)`
   );
@@ -144,6 +151,16 @@ export function ingestEvents(db: Database, playerId: number, events: IngestEvent
           break;
         case "diary_completed":
           upsertDiary.run(playerId, event.diaryArea, event.tier, event.ts);
+          break;
+        case "diary_task_progress":
+          upsertDiaryTaskProgress.run(
+            playerId,
+            event.diaryArea,
+            event.tier,
+            event.taskName,
+            event.completed ? 1 : 0,
+            event.ts
+          );
           break;
         case "clue_completed":
           insertClue.run(playerId, event.tier, event.count ?? null, event.ts);

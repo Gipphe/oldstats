@@ -102,6 +102,14 @@ export interface Diary {
   ts: string;
 }
 
+export interface DiaryTaskProgress {
+  diaryArea: string;
+  tier: string;
+  taskName: string;
+  completed: number;
+  ts: string;
+}
+
 export interface Clue {
   tier: string;
   count: number | null;

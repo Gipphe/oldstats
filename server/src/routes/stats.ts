@@ -16,6 +16,7 @@ import {
   getCollectionLog,
   getCombatAchievements,
   getDiaries,
+  getDiaryTaskProgress,
   getClues,
   getPets,
   getPersonalBests,
@@ -129,6 +130,10 @@ export function statsRouter(db: Database): Router {
 
   router.get("/players/:playerId/diaries", (req, res) => {
     res.json(getDiaries(db, (req as any).resolvedPlayerId));
+  });
+
+  router.get("/players/:playerId/diary-tasks", (req, res) => {
+    res.json(getDiaryTaskProgress(db, (req as any).resolvedPlayerId));
   });
 
   router.get("/players/:playerId/clues", (req, res) => {

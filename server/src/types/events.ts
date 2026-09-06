@@ -85,6 +85,15 @@ export const diaryCompletedEvent = z.object({
   ts: isoTimestamp,
 });
 
+export const diaryTaskProgressEvent = z.object({
+  type: z.literal("diary_task_progress"),
+  diaryArea: z.string(),
+  tier: z.enum(["EASY", "MEDIUM", "HARD", "ELITE"]),
+  taskName: z.string(),
+  completed: z.boolean(),
+  ts: isoTimestamp,
+});
+
 export const clueCompletedEvent = z.object({
   type: z.literal("clue_completed"),
   tier: z.string(),
@@ -158,6 +167,7 @@ export const ingestEvent = z.discriminatedUnion("type", [
   collectionLogItemEvent,
   combatAchievementEvent,
   diaryCompletedEvent,
+  diaryTaskProgressEvent,
   clueCompletedEvent,
   petReceivedEvent,
   personalBestEvent,

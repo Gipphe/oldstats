@@ -48,6 +48,16 @@ export function buildSeedEvents(now: Date = new Date()) {
 
     { type: "diary_completed", diaryArea: "ARDOUGNE", tier: "ELITE", ts: nowIso },
 
+    { type: "diary_task_progress", diaryArea: "ARDOUGNE", tier: "EASY", taskName: "Enter the Wilderness", completed: true, ts: nowIso },
+    {
+      type: "diary_task_progress",
+      diaryArea: "ARDOUGNE",
+      tier: "EASY",
+      taskName: "Steal from the Ardougne market stalls",
+      completed: false,
+      ts: nowIso,
+    },
+
     { type: "clue_completed", tier: "Elite", count: 12, ts: nowIso },
 
     { type: "pet_received", petName: "Vorki", ts: nowIso },

@@ -180,6 +180,20 @@ use the same server port and temp DB. See `web/scripts/screenshot-app.ts`.
     OSRS Wiki's Karamja Diary page, not something the game exposes as a
     ready-made threshold, so this would need updating if Jagex ever
     adds/removes a Karamja diary task.
+  - **Individual diary task progress** (which specific tasks within a tier
+    are done, not just whether the whole tier is complete) has no varbit at
+    all. It's read from the diary journal's own widget tree instead — the
+    game renders each task line and wraps already-completed ones in `<str>`
+    (strikethrough) tags, the same signal RuneLite's own bundled "Diary
+    Requirements" plugin keys off of (confirmed by decompiling it). This only
+    updates when the player actually opens that area's diary page in-game
+    (Quest List → Achievement Diaries) with the plugin running — same
+    "can't be polled" limitation as the bank tracker. The area/tier headings
+    are matched against the exact strings that plugin's own source switches
+    on; the tier-grouping-within-a-page logic (inline "Easy"/"Medium"/"Hard"/
+    "Elite" section headers) is standard, well-known diary journal layout but
+    wasn't independently decompile-verified the way the headings and `<str>`
+    marker were.
 - **Clue scrolls** use the exact regex RuneLite's own Loot Tracker plugin
   matches completions against (`CLUE_SCROLL_PATTERN` in
   `LootTrackerPlugin`), extended with our own capture group for the count.

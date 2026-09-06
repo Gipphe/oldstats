@@ -50,6 +50,16 @@ test.describe("Activity", () => {
     await expect(page.getByText("Ardougne — Elite")).toBeVisible();
   });
 
+  test("Diaries tab also shows individual task progress within a tier", async ({ page }) => {
+    await page.getByRole("tab", { name: "Diaries" }).click();
+    const progress = page.locator(".section-card", { hasText: "Diary task progress" });
+    await expect(progress).toContainText("Ardougne");
+    await expect(progress).toContainText("Easy");
+    await expect(progress).toContainText("(1/2)");
+    await expect(progress).toContainText("Enter the Wilderness");
+    await expect(progress).toContainText("Steal from the Ardougne market stalls");
+  });
+
   test("Clues tab shows the completed tier", async ({ page }) => {
     await page.getByRole("tab", { name: "Clues" }).click();
     await expect(page.locator(".list-item", { hasText: "Elite" })).toBeVisible();

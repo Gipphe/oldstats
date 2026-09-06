@@ -4,7 +4,7 @@ import { freshDb } from "../test-helpers.js";
 import { createPlayer } from "./players.js";
 import { ingestEvents } from "./ingest.js";
 import type { IngestEvent } from "../types/events.js";
-import { getBank, getOverview, getWorldBreakdown, getXpBySkill, getXpSeries } from "./stats.js";
+import { getBank, getDiaryTaskProgress, getOverview, getWorldBreakdown, getXpBySkill, getXpSeries } from "./stats.js";
 
 describe("stats service", () => {
   let db: Database;
@@ -160,6 +160,46 @@ describe("stats service", () => {
       expect(bank.items).toEqual([]);
       expect(bank.totalValue).toBe(0);
       expect(bank.lastSyncedAt).toBeNull();
+    });
+  });
+
+  describe("getDiaryTaskProgress", () => {
+    it("groups by area then orders tiers easy-to-elite regardless of insertion order", () => {
+      ingest([
+        {
+          type: "diary_task_progress",
+          diaryArea: "ARDOUGNE",
+          tier: "ELITE",
+          taskName: "An elite task",
+          completed: false,
+          ts: "2026-01-01T00:00:00.000Z",
+        },
+        {
+          type: "diary_task_progress",
+          diaryArea: "ARDOUGNE",
+          tier: "EASY",
+          taskName: "An easy task",
+          completed: true,
+          ts: "2026-01-01T00:00:00.000Z",
+        },
+        {
+          type: "diary_task_progress",
+          diaryArea: "ARDOUGNE",
+          tier: "HARD",
+          taskName: "A hard task",
+          completed: false,
+          ts: "2026-01-01T00:00:00.000Z",
+        },
+      ]);
+
+      const rows = getDiaryTaskProgress(db, playerId);
+      expect(rows.map((r) => r.tier)).toEqual(["EASY", "HARD", "ELITE"]);
+      expect(rows[0].completed).toBe(1);
+      expect(rows[0].taskName).toBe("An easy task");
+    });
+
+    it("returns nothing for a player with no diary pages viewed yet", () => {
+      expect(getDiaryTaskProgress(db, playerId)).toEqual([]);
     });
   });
 });

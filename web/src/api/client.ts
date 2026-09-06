@@ -4,6 +4,7 @@ import type {
   CollectionLogItem,
   CombatAchievement,
   Diary,
+  DiaryTaskProgress,
   Drop,
   FarmingPatch,
   Kill,
@@ -88,6 +89,8 @@ export const api = {
     get<CombatAchievement[]>(`/players/${playerId}/combat-achievements`, { ...range, limit }),
 
   diaries: (playerId: number | string) => get<Diary[]>(`/players/${playerId}/diaries`),
+
+  diaryTasks: (playerId: number | string) => get<DiaryTaskProgress[]>(`/players/${playerId}/diary-tasks`),
 
   clues: (playerId: number | string, range: DateRange = {}, limit?: number) =>
     get<Clue[]>(`/players/${playerId}/clues`, { ...range, limit }),

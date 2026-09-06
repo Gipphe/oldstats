@@ -82,6 +82,41 @@ describe("ingestEvent schema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("accepts a valid diary_task_progress", () => {
+    const result = ingestEvent.safeParse({
+      type: "diary_task_progress",
+      diaryArea: "ARDOUGNE",
+      tier: "EASY",
+      taskName: "Enter the Wilderness",
+      completed: true,
+      ts: "2026-01-01T00:00:00.000Z",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a diary_task_progress with an invalid tier", () => {
+    const result = ingestEvent.safeParse({
+      type: "diary_task_progress",
+      diaryArea: "ARDOUGNE",
+      tier: "IMPOSSIBLE",
+      taskName: "Enter the Wilderness",
+      completed: true,
+      ts: "2026-01-01T00:00:00.000Z",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a diary_task_progress missing completed", () => {
+    const result = ingestEvent.safeParse({
+      type: "diary_task_progress",
+      diaryArea: "ARDOUGNE",
+      tier: "EASY",
+      taskName: "Enter the Wilderness",
+      ts: "2026-01-01T00:00:00.000Z",
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe("ingestBatch schema", () => {

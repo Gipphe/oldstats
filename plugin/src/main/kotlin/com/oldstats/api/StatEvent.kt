@@ -89,6 +89,14 @@ sealed class StatEvent(val type: String) {
         val ts: String = now(),
     ) : StatEvent("diary_completed")
 
+    class DiaryTaskProgress(
+        val diaryArea: String,
+        val tier: String,
+        val taskName: String,
+        val completed: Boolean,
+        val ts: String = now(),
+    ) : StatEvent("diary_task_progress")
+
     class ClueCompleted(
         val tier: String,
         val count: Int?,

@@ -221,3 +221,38 @@
   outline: none;
   border-color: var(--series-1);
 }
+
+.diary-area-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--gridline);
+}
+
+.diary-area-group:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.diary-area-heading {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--series-6);
+  margin: 0;
+}
+
+.diary-tier-heading {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin: var(--space-1) 0 0;
+}
+
+.diary-task-check {
+  flex-shrink: 0;
+}

@@ -7,6 +7,7 @@ import com.oldstats.tracking.BankTracker
 import com.oldstats.tracking.ClueTracker
 import com.oldstats.tracking.CollectionLogTracker
 import com.oldstats.tracking.CombatAchievementTracker
+import com.oldstats.tracking.DiaryTaskTracker
 import com.oldstats.tracking.FarmingTracker
 import com.oldstats.tracking.LootTracker
 import com.oldstats.tracking.NetWorthTracker
@@ -27,6 +28,7 @@ import net.runelite.api.events.ItemContainerChanged
 import net.runelite.api.events.NpcSpawned
 import net.runelite.api.events.StatChanged
 import net.runelite.api.events.VarbitChanged
+import net.runelite.api.events.WidgetLoaded
 import net.runelite.api.events.WorldChanged
 import net.runelite.client.callback.ClientThread
 import net.runelite.client.config.ConfigManager
@@ -81,6 +83,7 @@ class OldStatsPlugin : Plugin() {
     private lateinit var collectionLogTracker: CollectionLogTracker
     private lateinit var combatAchievementTracker: CombatAchievementTracker
     private lateinit var achievementDiaryTracker: AchievementDiaryTracker
+    private lateinit var diaryTaskTracker: DiaryTaskTracker
     private lateinit var clueTracker: ClueTracker
     private lateinit var petTracker: PetTracker
     private lateinit var pvpTracker: PvpTracker
@@ -110,6 +113,7 @@ class OldStatsPlugin : Plugin() {
         collectionLogTracker = CollectionLogTracker(apiClient, client, itemManager)
         combatAchievementTracker = CombatAchievementTracker(apiClient, client)
         achievementDiaryTracker = AchievementDiaryTracker(apiClient, client)
+        diaryTaskTracker = DiaryTaskTracker(apiClient, client, clientThread)
         clueTracker = ClueTracker(apiClient)
         petTracker = PetTracker(apiClient, client)
         pvpTracker = PvpTracker(apiClient, client)
@@ -219,5 +223,10 @@ class OldStatsPlugin : Plugin() {
     @Subscribe
     fun onItemContainerChanged(event: ItemContainerChanged) {
         if (config.trackBank()) bankTracker.onItemContainerChanged(event)
+    }
+
+    @Subscribe
+    fun onWidgetLoaded(event: WidgetLoaded) {
+        if (config.trackDiaries()) diaryTaskTracker.onWidgetLoaded(event)
     }
 }

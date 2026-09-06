@@ -248,6 +248,16 @@ export function getDiaries(db: Database, playerId: number) {
     .all(playerId) as any[];
 }
 
+export function getDiaryTaskProgress(db: Database, playerId: number) {
+  return db
+    .prepare(
+      `SELECT diary_area as diaryArea, tier, task_name as taskName, completed, ts
+       FROM diary_task_progress WHERE player_id = ?
+       ORDER BY diary_area, CASE tier WHEN 'EASY' THEN 0 WHEN 'MEDIUM' THEN 1 WHEN 'HARD' THEN 2 WHEN 'ELITE' THEN 3 ELSE 4 END, id`
+    )
+    .all(playerId) as any[];
+}
+
 export function getClues(db: Database, playerId: number, range: DateRange, limit = 100) {
   const { clause, params } = rangeClause(range);
   return db

@@ -118,6 +118,18 @@ CREATE TABLE IF NOT EXISTS achievement_diaries (
 );
 CREATE INDEX IF NOT EXISTS idx_diaries_player_ts ON achievement_diaries(player_id, ts);
 
+CREATE TABLE IF NOT EXISTS diary_task_progress (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  player_id INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  diary_area TEXT NOT NULL,
+  tier TEXT NOT NULL,
+  task_name TEXT NOT NULL,
+  completed INTEGER NOT NULL,
+  ts TEXT NOT NULL,
+  UNIQUE(player_id, diary_area, tier, task_name)
+);
+CREATE INDEX IF NOT EXISTS idx_diary_task_progress_player ON diary_task_progress(player_id, diary_area, tier);
+
 CREATE TABLE IF NOT EXISTS clue_completions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   player_id INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
