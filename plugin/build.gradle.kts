@@ -33,7 +33,18 @@ java {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        // Kotlin interface methods with bodies (OldStatsConfig's default-value
+        // getters) compile to abstract methods + a separate $DefaultImpls
+        // class by default — real JVM `default` methods only if implemented
+        // by Kotlin-compiled code. RuneLite's ConfigManager builds config
+        // interfaces via a plain java.lang.reflect.Proxy and only seeds a
+        // default value when Method.isDefault() is true, so without this
+        // flag every OldStatsConfig getter silently returns null instead of
+        // its declared default.
+        freeCompilerArgs.add("-Xjvm-default=all")
+    }
 }
 
 tasks.test {
