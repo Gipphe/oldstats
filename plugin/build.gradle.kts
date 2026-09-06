@@ -22,6 +22,8 @@ dependencies {
     testImplementation(group = "net.runelite", name = "jshell", version = runeLiteVersion)
     testImplementation(group = "junit", name = "junit", version = "4.13.2")
     testImplementation("org.slf4j:slf4j-simple:1.7.36")
+    testImplementation("org.mockito:mockito-core:5.14.2")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 }
 
 java {

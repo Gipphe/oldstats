@@ -30,6 +30,7 @@ cd server
 cp .env.example .env   # adjust if needed
 npm install
 npm run dev            # http://localhost:4000
+npm test               # unit + supertest integration tests (in-memory SQLite)
 ```
 
 Register a player and grab its API key:
@@ -47,6 +48,7 @@ Save the returned `apiKey` — it's only ever shown once.
 ```
 cd plugin
 ./gradlew build         # or: nix develop -c gradle build
+./gradlew test          # JUnit + Mockito unit tests for every tracker
 ```
 
 Load the built plugin into RuneLite in developer mode (see RuneLite's

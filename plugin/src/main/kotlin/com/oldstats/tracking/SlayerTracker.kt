@@ -35,6 +35,7 @@ class SlayerTracker(
     private var lastAmountSeen: Int? = null
     private var startedAt: String? = null
     private var lastKnownPoints: Int? = null
+    private var completionEmitted = false
 
     companion object {
         private const val WILDERNESS_SENTINEL = 98
@@ -52,6 +53,7 @@ class SlayerTracker(
         lastAmountSeen = null
         startedAt = null
         lastKnownPoints = null
+        completionEmitted = false
     }
 
     fun checkTask() {
@@ -66,6 +68,7 @@ class SlayerTracker(
             currentBossId = bossId
             lastAmountSeen = amount
             lastKnownPoints = points
+            completionEmitted = false
             if (creature != 0) {
                 currentTaskName = resolveTaskName(creature, bossId)
                 currentAmountAssigned = amount
@@ -77,11 +80,12 @@ class SlayerTracker(
         val taskChanged = creature != currentCreature || (creature == WILDERNESS_SENTINEL && bossId != currentBossId)
 
         if (taskChanged) {
-            if (currentCreature != null && currentCreature != 0 && lastAmountSeen == 0) {
+            if (currentCreature != null && currentCreature != 0 && lastAmountSeen == 0 && !completionEmitted) {
                 emitCompletion(points)
             }
             currentCreature = creature
             currentBossId = bossId
+            completionEmitted = false
             if (creature != 0) {
                 currentTaskName = resolveTaskName(creature, bossId)
                 currentAmountAssigned = amount
@@ -91,8 +95,9 @@ class SlayerTracker(
                 currentAmountAssigned = null
                 startedAt = null
             }
-        } else if (creature != 0 && amount == 0 && (lastAmountSeen ?: 0) > 0) {
+        } else if (creature != 0 && amount == 0 && (lastAmountSeen ?: 0) > 0 && !completionEmitted) {
             emitCompletion(points)
+            completionEmitted = true
         }
 
         lastAmountSeen = amount
