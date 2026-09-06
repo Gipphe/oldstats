@@ -1,32 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&display=swap");
+
+/*
+  OSRS-inspired theme: dark bronze/parchment palette echoing the game's
+  interface chrome and the official wiki/website, with a "carved gold
+  plaque" display face (Cinzel) for headings. Dark bronze is the default
+  regardless of OS preference — this is a themed app, not a generic one —
+  with an explicit lighter parchment variant behind `data-theme="light"`.
+*/
 :root {
-  color-scheme: light;
-  --surface-1: #fcfcfb;
-  --surface-2: #f9f9f7;
-  --text-primary: #0b0b0b;
-  --text-secondary: #52514e;
-  --text-muted: #898781;
-  --gridline: #e1e0d9;
-  --baseline: #c3c2b7;
-  --border: rgba(11, 11, 11, 0.1);
-  --success: #006300;
+  color-scheme: dark;
+  --surface-1: #2b2113;
+  --surface-2: #17120b;
+  --text-primary: #f2e6c9;
+  --text-secondary: #c9b78f;
+  --text-muted: #8a7a5c;
+  --gridline: #4a3d28;
+  --baseline: #5c4a2e;
+  --border: rgba(224, 160, 32, 0.22);
+  --success: #4ea72e;
+  --on-accent: #241a0a;
 
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --series-3: #1baf7a;
-  --series-4: #eda100;
-  --series-5: #e87ba4;
-  --series-6: #008300;
-  --series-7: #4a3aa7;
-  --series-8: #e34948;
+  --series-1: #e0a020;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #4ea72e;
+  --series-7: #9085e9;
+  --series-8: #e66767;
 
-  --status-good: #0ca30c;
+  --status-good: #4ea72e;
   --status-warning: #fab219;
   --status-serious: #ec835a;
-  --status-critical: #d03b3b;
+  --status-critical: #d9534f;
 
   --radius-sm: 4px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -35,53 +45,36 @@
   --nav-height: 60px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
+  --font-display: "Cinzel", "Times New Roman", serif;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
-    color-scheme: dark;
-    --surface-1: #1a1a19;
-    --surface-2: #0d0d0d;
-    --text-primary: #ffffff;
-    --text-secondary: #c3c2b7;
-    --text-muted: #898781;
-    --gridline: #2c2c2a;
-    --baseline: #383835;
-    --border: rgba(255, 255, 255, 0.1);
-    --success: #0ca30c;
+:root[data-theme="light"] {
+  color-scheme: light;
+  --surface-1: #f3e9cf;
+  --surface-2: #e8d9b0;
+  --text-primary: #2b1e0f;
+  --text-secondary: #5c4a2e;
+  --text-muted: #8a7a5c;
+  --gridline: #d4c49a;
+  --baseline: #b8a06a;
+  --border: rgba(43, 30, 15, 0.18);
+  --success: #2f6d1f;
+  --on-accent: #241a0a;
 
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #c98500;
-    --series-5: #d55181;
-    --series-6: #008300;
-    --series-7: #9085e9;
-    --series-8: #e66767;
-  }
-}
+  --series-1: #8a5a1e;
+  --series-2: #b0431f;
+  --series-3: #196f4f;
+  --series-4: #8a6000;
+  --series-5: #a03a63;
+  --series-6: #2f6d1f;
+  --series-7: #4a3aa7;
+  --series-8: #a83a3a;
 
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --surface-1: #1a1a19;
-  --surface-2: #0d0d0d;
-  --text-primary: #ffffff;
-  --text-secondary: #c3c2b7;
-  --text-muted: #898781;
-  --gridline: #2c2c2a;
-  --baseline: #383835;
-  --border: rgba(255, 255, 255, 0.1);
-  --success: #0ca30c;
-
-  --series-1: #3987e5;
-  --series-2: #d95926;
-  --series-3: #199e70;
-  --series-4: #c98500;
-  --series-5: #d55181;
-  --series-6: #008300;
-  --series-7: #9085e9;
-  --series-8: #e66767;
+  --status-good: #2f6d1f;
+  --status-warning: #8a6000;
+  --status-serious: #a0522d;
+  --status-critical: #a02020;
 }
 
 * {
@@ -114,6 +107,11 @@ input {
 
 a {
   color: inherit;
+}
+
+h1, h2 {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
 }
 
 .tabular-nums {

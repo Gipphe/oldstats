@@ -1,6 +1,7 @@
 .section-card {
   background: var(--surface-1);
   border: 1px solid var(--border);
+  border-top: 2px solid var(--series-1);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   display: flex;
@@ -15,8 +16,10 @@
 }
 
 .section-card-header h2 {
+  font-family: var(--font-display);
   font-size: 14px;
   font-weight: 700;
-  color: var(--text-primary);
+  letter-spacing: 0.03em;
+  color: var(--series-1);
   margin: 0;
 }

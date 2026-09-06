@@ -4,16 +4,18 @@
   gap: 2px;
   background: var(--surface-1);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--series-1);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
   min-width: 0;
 }
 
 .stat-tile-value {
-  font-size: 22px;
+  font-family: var(--font-display);
+  font-size: 21px;
   font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .stat-tile-label {

@@ -7,9 +7,10 @@
 }
 
 .page h1 {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   margin: 0;
+  color: var(--series-1);
 }
 
 .muted {
@@ -117,7 +118,7 @@
 .tab-button.active {
   background: var(--series-1);
   border-color: var(--series-1);
-  color: #ffffff;
+  color: var(--on-accent);
   font-weight: 600;
 }
 
