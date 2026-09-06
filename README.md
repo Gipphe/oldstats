@@ -49,11 +49,15 @@ Save the returned `apiKey` — it's only ever shown once.
 cd plugin
 ./gradlew build         # or: nix develop -c gradle build
 ./gradlew test          # JUnit + Mockito unit tests for every tracker
+./gradlew runClient     # launches a real RuneLite client with the plugin preloaded
 ```
 
-Load the built plugin into RuneLite in developer mode (see RuneLite's
-[plugin development docs](https://github.com/runelite/runelite/wiki/Developing-Plugins)),
-then in the OldStats plugin config panel set:
+`runClient` is the standard way to try an unpublished plugin without going
+through Plugin Hub review — see `OldStatsPluginTest.kt`, which just calls
+`ExternalPluginManager.loadBuiltin(OldStatsPlugin::class.java)` before
+`RuneLite.main()`. It opens an independent RuneLite client (your regular
+client/launcher, if any, is untouched); log in there like normal. In that
+client's plugin list, find "OldStats" and set:
 
 - **Server URL** — e.g. `http://localhost:4000`
 - **API key** — the key from step 1

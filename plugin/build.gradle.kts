@@ -39,3 +39,11 @@ tasks.test {
     useJUnit()
     systemProperty("runelite.static.test", "true")
 }
+
+tasks.register<JavaExec>("runClient") {
+    group = "application"
+    description = "Launches a real RuneLite client with this plugin preloaded (see OldStatsPluginTest.kt)"
+    mainClass.set("com.oldstats.OldStatsPluginTestKt")
+    classpath = sourceSets.test.get().runtimeClasspath
+    jvmArgs("-ea") // required by ExternalPluginManager.loadBuiltin as a development safety check
+}
