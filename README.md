@@ -21,16 +21,25 @@ with a weekly "wrap-up" summary.
 
 A `flake.nix` at the repo root provides Node.js, JDK 17 and Gradle for all
 three subprojects — run `nix develop` from the repo root (or any subproject)
-to get a shell with everything needed. It also packages the server proper
-(`packages.<system>.server`, built with `buildNpmPackage`) and exposes it as
-a flake app: `nix run .#server` (or just `nix run .`) builds it if needed
-and starts it — no dev shell, no manual `npm install`, works from anywhere.
-`nix build .#server` builds it without running it (`result/bin/oldstats-server`).
+to get a shell with everything needed. It also packages the server and web
+app proper (`packages.<system>.server`/`web`, both built with
+`buildNpmPackage`) and exposes them as flake apps: `nix run .#server` (or
+just `nix run .`) builds it if needed and starts it — no dev shell, no
+manual `npm install`, works from anywhere. `nix build .#server`/`.#web`
+builds without running (`result/bin/oldstats-server`/`oldstats-web`).
 
-By default the packaged binary stores its SQLite DB under
+By default the packaged server binary stores its SQLite DB under
 `$XDG_DATA_HOME/oldstats/oldstats.db` (falling back to
 `~/.local/share/oldstats/oldstats.db`) and listens on port 4000 — override
 with `OLDSTATS_DB_PATH`/`PORT` env vars, same as the manual setup below.
+
+The packaged web app (`nix run .#web`) serves the production build via
+`vite preview` on port 4173, with `VITE_API_URL` fixed to
+`http://localhost:4000` at build time — Vite bakes `VITE_*` vars into the
+compiled JS bundle (`import.meta.env.VITE_API_URL`), so unlike the server
+this can't be overridden with an env var at runtime; edit `env.VITE_API_URL`
+in `flake.nix` and rebuild if your server lives elsewhere. Extra args (e.g.
+`-- --port 4200`) pass through to `vite preview`.
 
 ### 1. Server
 
@@ -85,6 +94,14 @@ interval (default 30s). The queue is in-process only — it does not persist
 across a plugin reload while the server is unreachable.
 
 ### 3. Web app
+
+```
+nix run .#web           # http://localhost:4173, points at http://localhost:4000
+```
+
+Or the manual, non-Nix-packaged equivalent, needed if your server isn't at
+`http://localhost:4000` (see the build-time `VITE_API_URL` note above) or
+you're actively developing the web app:
 
 ```
 cd web

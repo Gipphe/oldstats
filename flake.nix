@@ -92,6 +92,46 @@
 
             meta.mainProgram = "oldstats-server";
           };
+
+          web = pkgs.buildNpmPackage {
+            pname = "oldstats-web";
+            version = "0.1.0";
+            src = ./web;
+            inherit nodejs;
+
+            # Regenerate with the hash Nix reports on a mismatch if package-lock.json changes.
+            npmDepsHash = "sha256-GnZK8CSpuG9j3yd8gmRJJKRPwfu5ILLbgIUg+V63O2o=";
+
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+
+            # Vite bakes VITE_* vars into the built JS bundle at `vite build`
+            # time (import.meta.env.VITE_API_URL is statically replaced) —
+            # unlike the server, this can't be overridden at runtime, so the
+            # backend URL is fixed here. Edit and rebuild to point elsewhere.
+            env.VITE_API_URL = "http://localhost:4000";
+
+            npmBuildScript = "build";
+
+            installPhase = ''
+              runHook preInstall
+
+              # vite.config.ts is intentionally not copied: `vite preview` only
+              # needs root + build.outDir, which already match the defaults,
+              # and loading a config file would make Vite try to write a
+              # bundled copy next to node_modules, which is read-only here.
+              mkdir -p $out/lib/oldstats-web
+              cp -r dist node_modules package.json $out/lib/oldstats-web/
+
+              makeWrapper ${nodejs}/bin/node $out/bin/oldstats-web \
+                --add-flags "$out/lib/oldstats-web/node_modules/vite/bin/vite.js" \
+                --add-flags "preview --host" \
+                --chdir $out/lib/oldstats-web
+
+              runHook postInstall
+            '';
+
+            meta.mainProgram = "oldstats-web";
+          };
         }
       );
 
@@ -99,6 +139,10 @@
         server = {
           type = "app";
           program = "${self.packages.${system}.server}/bin/oldstats-server";
+        };
+        web = {
+          type = "app";
+          program = "${self.packages.${system}.web}/bin/oldstats-web";
         };
         default = self.apps.${system}.server;
       });
