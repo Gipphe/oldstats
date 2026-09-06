@@ -197,7 +197,37 @@
               text = ''
                 repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
                 cd "$repo_root/plugin"
-                exec gradle runClient
+
+                # RuneLite's UI is plain AWT/Swing/LWJGL with no native Wayland
+                # backend, so it needs an X server — on a Wayland desktop that
+                # means XWayland. Many wlroots-based compositors (Hyprland
+                # included) don't export DISPLAY into every shell, so fall
+                # back to whatever live X11 socket we can find rather than
+                # failing outright with an opaque HeadlessException.
+                if [ -z "''${DISPLAY:-}" ]; then
+                  for sock in /tmp/.X11-unix/X*; do
+                    [ -S "$sock" ] || continue
+                    export DISPLAY=":''${sock##*/X}"
+                    echo "DISPLAY was unset; using detected X11 socket $DISPLAY (XWayland?)" >&2
+                    break
+                  done
+                fi
+                if [ -z "''${DISPLAY:-}" ]; then
+                  echo "warning: DISPLAY is unset and no X11 socket was found in /tmp/.X11-unix." >&2
+                  echo "RuneLite needs a running X server (or XWayland, on Wayland desktops) to open a window." >&2
+                fi
+
+                # --no-daemon: a persistent Gradle daemon snapshots its
+                # environment (DISPLAY, XAUTHORITY, ...) once at startup and
+                # reuses it for every later invocation, including from
+                # unrelated shells/sessions. For a GUI-launching task that's
+                # actively wrong — a stale daemon started without a display
+                # (e.g. over SSH, or by a headless CI/tool run) would make
+                # every subsequent `nix run .#runelite` fail with a
+                # HeadlessException even when run from a real desktop
+                # session. A fresh JVM per run always has the current
+                # invocation's actual environment.
+                exec gradle --no-daemon runClient
               '';
             }}/bin/oldstats-runelite";
           };

@@ -86,7 +86,14 @@ cd plugin
 Or, from anywhere, `nix run .#runelite` — a thin wrapper around
 `gradle runClient` (using `gradle_8` and your actual checkout, not a Nix
 store copy, since this needs a writable Gradle project dir and a real
-display, neither of which fit a hermetic build like `packages.plugin`).
+display, neither of which fit a hermetic build like `packages.plugin`). It
+runs with `--no-daemon` so a stale Gradle daemon (e.g. one started without a
+display) can never poison a later GUI-launching run with its snapshotted
+environment. RuneLite's UI has no native Wayland backend, so on a Wayland
+desktop it needs XWayland; if `DISPLAY` isn't already exported (common on
+wlroots compositors like Hyprland, which don't always propagate it into
+every shell), the wrapper falls back to the first live socket it finds in
+`/tmp/.X11-unix/`.
 
 `runClient` is the standard way to try an unpublished plugin without going
 through Plugin Hub review — see `OldStatsPluginTest.kt`, which just calls
