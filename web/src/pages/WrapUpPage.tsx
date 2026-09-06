@@ -89,6 +89,7 @@ export function WrapUpPage() {
             />
             <StatTile
               tone="economy"
+              icon={<img src="/items/coins.png" alt="" width={22} height={22} />}
               label="Net worth"
               value={data.netWorthChange != null ? `${data.netWorthChange >= 0 ? "+" : ""}${formatGp(data.netWorthChange)} gp` : "—"}
             />

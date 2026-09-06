@@ -79,7 +79,12 @@ export function DashboardPage() {
           value={kdr}
           sublabel={overview.data ? `${overview.data.playerKills} kills, ${overview.data.playerDeaths} deaths` : undefined}
         />
-        <StatTile tone="economy" label="Net worth" value={overview.data?.netWorth != null ? `${formatGp(overview.data.netWorth)} gp` : "—"} />
+        <StatTile
+          tone="economy"
+          icon={<img src="/items/coins.png" alt="" width={22} height={22} />}
+          label="Net worth"
+          value={overview.data?.netWorth != null ? `${formatGp(overview.data.netWorth)} gp` : "—"}
+        />
       </div>
 
       <SectionCard title="XP by skill" accent="var(--series-1)">
