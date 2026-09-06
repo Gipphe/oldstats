@@ -181,19 +181,42 @@ use the same server port and temp DB. See `web/scripts/screenshot-app.ts`.
     ready-made threshold, so this would need updating if Jagex ever
     adds/removes a Karamja diary task.
   - **Individual diary task progress** (which specific tasks within a tier
-    are done, not just whether the whole tier is complete) has no varbit at
-    all. It's read from the diary journal's own widget tree instead — the
-    game renders each task line and wraps already-completed ones in `<str>`
-    (strikethrough) tags, the same signal RuneLite's own bundled "Diary
-    Requirements" plugin keys off of (confirmed by decompiling it). This only
-    updates when the player actually opens that area's diary page in-game
-    (Quest List → Achievement Diaries) with the plugin running — same
-    "can't be polled" limitation as the bank tracker. The area/tier headings
-    are matched against the exact strings that plugin's own source switches
-    on; the tier-grouping-within-a-page logic (inline "Easy"/"Medium"/"Hard"/
-    "Elite" section headers) is standard, well-known diary journal layout but
-    wasn't independently decompile-verified the way the headings and `<str>`
-    marker were.
+    are done, not just whether the whole tier is complete) has no obviously
+    diary-named varbit, but two independent trackers cover it from different
+    angles, both feeding the same `diary_task_progress` event:
+    - [`DiaryBitsetTracker`](plugin/src/main/kotlin/com/oldstats/tracking/DiaryBitsetTracker.kt)
+      is the primary, always-on one. Individual tasks turn out to be tracked
+      as single bits packed into a couple of `VarPlayer`s per area (e.g.
+      `ARDOUNGE_ACHIEVEMENT_DIARY`/`_DIARY2`) — the same mechanism RuneLite's
+      own **Quest Helper** plugin uses to decide which diary steps to skip.
+      [`DiaryTaskData.kt`](plugin/src/main/kotlin/com/oldstats/tracking/diary/DiaryTaskData.kt)
+      is a ~450-entry table (area, tier, task name, varp, bit position) ported
+      by fetching and parsing all 48 of Quest Helper's own
+      `helpers/achievementdiaries/**` source files (github.com/Zoinkwiz/quest-helper)
+      directly, not reconstructed from memory — every `VarPlayerID` constant
+      referenced was cross-checked against this project's own pinned RuneLite
+      API jar and compiles clean. Task **names** are Quest Helper's own short
+      editorial labels where a file bothered to set one, and its own terse
+      internal variable names (lightly expanded for common OSRS abbreviations
+      like "TP"/"Agi"/"Mith") everywhere else — only one of the 48 source
+      files actually set nicer labels, so most names are readably terse
+      rather than verbatim in-game wording. Doesn't cover Karamja's
+      easy/medium/hard tiers, which predate this bitset system entirely (see
+      above) and have no per-task identity in the game's state at all, bitset
+      or otherwise.
+    - [`DiaryTaskTracker`](plugin/src/main/kotlin/com/oldstats/tracking/DiaryTaskTracker.kt)
+      is a supplementary, opportunistic tracker reading the diary journal's
+      own widget tree — the game renders each task line and wraps
+      already-completed ones in `<str>` (strikethrough) tags, the same signal
+      RuneLite's bundled "Diary Requirements" plugin keys off of (confirmed
+      by decompiling it). Only updates when the player actually opens that
+      area's diary page in-game, same "can't be polled" limitation as the
+      bank tracker — but unlike the bitset tracker, it *does* reach Karamja's
+      legacy tiers (the game evidently still renders per-task strikethrough
+      state for them even without a discrete bit backing it), and its task
+      names come from the journal's real in-game text rather than Quest
+      Helper's shorthand. The two trackers' rows simply upsert independently
+      into the same table; neither depends on the other.
 - **Clue scrolls** use the exact regex RuneLite's own Loot Tracker plugin
   matches completions against (`CLUE_SCROLL_PATTERN` in
   `LootTrackerPlugin`), extended with our own capture group for the count.

@@ -7,6 +7,7 @@ import com.oldstats.tracking.BankTracker
 import com.oldstats.tracking.ClueTracker
 import com.oldstats.tracking.CollectionLogTracker
 import com.oldstats.tracking.CombatAchievementTracker
+import com.oldstats.tracking.DiaryBitsetTracker
 import com.oldstats.tracking.DiaryTaskTracker
 import com.oldstats.tracking.FarmingTracker
 import com.oldstats.tracking.LootTracker
@@ -84,6 +85,7 @@ class OldStatsPlugin : Plugin() {
     private lateinit var combatAchievementTracker: CombatAchievementTracker
     private lateinit var achievementDiaryTracker: AchievementDiaryTracker
     private lateinit var diaryTaskTracker: DiaryTaskTracker
+    private lateinit var diaryBitsetTracker: DiaryBitsetTracker
     private lateinit var clueTracker: ClueTracker
     private lateinit var petTracker: PetTracker
     private lateinit var pvpTracker: PvpTracker
@@ -114,6 +116,7 @@ class OldStatsPlugin : Plugin() {
         combatAchievementTracker = CombatAchievementTracker(apiClient, client)
         achievementDiaryTracker = AchievementDiaryTracker(apiClient, client)
         diaryTaskTracker = DiaryTaskTracker(apiClient, client, clientThread)
+        diaryBitsetTracker = DiaryBitsetTracker(apiClient, client)
         clueTracker = ClueTracker(apiClient)
         petTracker = PetTracker(apiClient, client)
         pvpTracker = PvpTracker(apiClient, client)
@@ -211,6 +214,7 @@ class OldStatsPlugin : Plugin() {
         if (config.trackCollectionLog()) collectionLogTracker.checkNewestUnlock()
         if (config.trackCombatAchievements()) combatAchievementTracker.checkTasks()
         if (config.trackDiaries()) achievementDiaryTracker.checkDiaries()
+        if (config.trackDiaries()) diaryBitsetTracker.checkTasks()
     }
 
     @Subscribe
