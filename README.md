@@ -37,7 +37,8 @@ By default the packaged server binary stores its SQLite DB under
 with `OLDSTATS_DB_PATH`/`PORT` env vars, same as the manual setup below.
 
 The packaged web app (`nix run .#web`) serves the production build via
-`vite preview` on port 4173, with `VITE_API_URL` fixed to
+`vite preview` on port 3000 (kept apart from the server's own default of
+4000), with `VITE_API_URL` fixed to
 `http://localhost:4000` at build time — Vite bakes `VITE_*` vars into the
 compiled JS bundle (`import.meta.env.VITE_API_URL`), so unlike the server
 this can't be overridden with an env var at runtime; edit `env.VITE_API_URL`
@@ -138,7 +139,7 @@ git add plugin/deps.json
 ### 3. Web app
 
 ```
-nix run .#web           # http://localhost:4173, points at http://localhost:4000
+nix run .#web           # http://localhost:3000, points at http://localhost:4000
 ```
 
 Or the manual, non-Nix-packaged equivalent, needed if your server isn't at
@@ -149,7 +150,7 @@ you're actively developing the web app:
 cd web
 cp .env.example .env    # set VITE_API_URL to your server
 npm install
-npm run dev             # http://localhost:5173
+npm run dev             # http://localhost:3000
 ```
 
 Open it on your phone (or resize your browser) — layout is mobile-first with

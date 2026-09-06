@@ -119,12 +119,13 @@
               # needs root + build.outDir, which already match the defaults,
               # and loading a config file would make Vite try to write a
               # bundled copy next to node_modules, which is read-only here.
+              # Its port setting is passed explicitly below instead.
               mkdir -p $out/lib/oldstats-web
               cp -r dist node_modules package.json $out/lib/oldstats-web/
 
               makeWrapper ${nodejs}/bin/node $out/bin/oldstats-web \
                 --add-flags "$out/lib/oldstats-web/node_modules/vite/bin/vite.js" \
-                --add-flags "preview --host" \
+                --add-flags "preview --host --port 3000" \
                 --chdir $out/lib/oldstats-web
 
               runHook postInstall
