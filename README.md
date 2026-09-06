@@ -83,6 +83,11 @@ cd plugin
 ./gradlew runClient     # launches a real RuneLite client with the plugin preloaded
 ```
 
+Or, from anywhere, `nix run .#runelite` — a thin wrapper around
+`gradle runClient` (using `gradle_8` and your actual checkout, not a Nix
+store copy, since this needs a writable Gradle project dir and a real
+display, neither of which fit a hermetic build like `packages.plugin`).
+
 `runClient` is the standard way to try an unpublished plugin without going
 through Plugin Hub review — see `OldStatsPluginTest.kt`, which just calls
 `ExternalPluginManager.loadBuiltin(OldStatsPlugin::class.java)` before

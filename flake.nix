@@ -168,16 +168,41 @@
         }
       );
 
-      apps = forAllSystems (system: {
-        server = {
-          type = "app";
-          program = "${self.packages.${system}.server}/bin/oldstats-server";
-        };
-        web = {
-          type = "app";
-          program = "${self.packages.${system}.web}/bin/oldstats-web";
-        };
-        default = self.apps.${system}.server;
-      });
+      apps = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          server = {
+            type = "app";
+            program = "${self.packages.${system}.server}/bin/oldstats-server";
+          };
+          web = {
+            type = "app";
+            program = "${self.packages.${system}.web}/bin/oldstats-web";
+          };
+          # Launches a real RuneLite client with the plugin preloaded (see
+          # OldStatsPluginTest.kt / build.gradle.kts's runClient task). Unlike
+          # `packages.plugin`, this isn't built hermetically: it opens a real
+          # GUI window on the host's display and needs a writable Gradle
+          # project directory (build/ cache, ~/.gradle), so it just shells
+          # out to `gradle runClient` against your actual checkout rather
+          # than the read-only Nix store copy of the flake's source.
+          runelite = {
+            type = "app";
+            program = "${pkgs.writeShellApplication {
+              name = "oldstats-runelite";
+              runtimeInputs = [ pkgs.gradle_8 ];
+              text = ''
+                repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+                cd "$repo_root/plugin"
+                exec gradle runClient
+              '';
+            }}/bin/oldstats-runelite";
+          };
+          default = self.apps.${system}.server;
+        }
+      );
     };
 }
