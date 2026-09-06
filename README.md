@@ -96,53 +96,44 @@ Stats are queued in memory and flushed to the server on the configured
 interval (default 30s). The queue is in-process only — it does not persist
 across a plugin reload while the server is unreachable.
 
-#### Using your existing RuneLite install instead
+#### Why not sideload it into your existing (launcher-installed) RuneLite?
 
-`runClient` launches an independent client just for development. To add the
-plugin to your normal RuneLite instead, sideload it — RuneLite's built-in
-mechanism for loading a jar without going through Plugin Hub review, gated
-behind developer mode:
+RuneLite has a sideloading mechanism (`~/.runelite/sideloaded-plugins/`,
+gated behind developer mode) that looks like the obvious way to add this to
+your normal RuneLite install. It doesn't actually work for that, though —
+verified against RuneLite's own source, not just docs:
 
-```
-cd plugin
-./gradlew shadowJar    # build/libs/oldstats-plugin-1.0.0-all.jar (bundles kotlin-stdlib)
-mkdir -p ~/.runelite/sideloaded-plugins
-cp build/libs/oldstats-plugin-1.0.0-all.jar ~/.runelite/sideloaded-plugins/
+```java
+// runelite-client RuneLite.java
+final boolean developerMode = options.has("developer-mode") && RuneLiteProperties.getLauncherVersion() == null;
 ```
 
-Or via the flake, which builds the same jar hermetically with `gradle_8` +
-nixpkgs' Gradle dependency proxy (no local `~/.gradle` cache, no Maven Local
-state carried over):
+The official Launcher **unconditionally** stamps every client it starts with
+a version marker (`Launcher.java`: `jvmProps.put(LauncherProperties.getVersionKey(), ...)`,
+key `runelite.launcher.version`) — regardless of platform (exe, Jagex
+launcher, AppImage all go through this). So `getLauncherVersion()` is never
+`null` when launched via the official launcher, `developerMode` is always
+`false`, and the sideloader's own check (`if (!developerMode) return;`)
+bails before ever looking in `sideloaded-plugins/` — no matter what you put
+in `--configure`'s Client arguments field. Sideloading only works if you run
+the bare client JAR directly, bypassing the launcher entirely, which for
+most people means building RuneLite from source — at which point you may as
+well use `runClient` below instead, since it isn't gated by developer mode
+at all.
 
-```
-nix build .#plugin
-cp result/oldstats-plugin.jar ~/.runelite/sideloaded-plugins/
-```
-
-If `plugin/build.gradle.kts`'s dependencies ever change, `nix build .#plugin`
-will fail with a message that `plugin/deps.json` is out of date — regenerate
-it with:
+If you still want the jar for some other reason (e.g. a genuinely
+self-built, launcher-free client), it's `./gradlew shadowJar` →
+`build/libs/oldstats-plugin-1.0.0-all.jar`, or `nix build .#plugin` →
+`result/oldstats-plugin.jar` (same jar, built hermetically via `gradle_8` +
+nixpkgs' Gradle dependency proxy). If `plugin/build.gradle.kts`'s
+dependencies ever change, the latter will fail with a message that
+`plugin/deps.json` is out of date — regenerate it with:
 
 ```
 nix build .#plugin.mitmCache.updateScript -o /tmp/update-oldstats-plugin-deps
 /tmp/update-oldstats-plugin-deps
 git add plugin/deps.json
 ```
-
-Then enable developer mode so RuneLite actually looks in that directory:
-
-- **Official launcher**: run it with `--configure` (`RuneLite --configure` on
-  Linux/Mac, or the "RuneLite (configure)" Start Menu entry on Windows) to
-  open the Launcher Configuration window, add `--developer-mode` under
-  **Client arguments**, save, then launch normally (including via the Jagex
-  launcher — the saved config applies there too).
-- **Self-built client**: pass `--developer-mode` as a program argument and
-  `-ea` as a VM argument.
-
-"OldStats" should now appear in the plugin list on next launch; configure
-Server URL and API key as in step 1 above. Note this loads whatever jar is
-in `sideloaded-plugins/` as-is — rerun `shadowJar` and replace the jar after
-making changes, there's no hot-reload.
 
 ### 3. Web app
 
