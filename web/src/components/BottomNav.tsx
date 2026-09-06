@@ -9,6 +9,11 @@ const items = [
     label: "Activity",
     icon: <path d="M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h10v2H4v-2z" />,
   },
+  {
+    to: "/bank",
+    label: "Bank",
+    icon: <path d="M12 2 2 8v2h20V8L12 2zM4 11v8H2v2h20v-2h-2v-8h-2v8h-3v-8h-2v8h-3v-8H8v8H6v-8H4z" />,
+  },
   { to: "/player", label: "Player", icon: <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v3h16v-3c0-2.8-3.6-5-8-5z" /> },
 ];
 

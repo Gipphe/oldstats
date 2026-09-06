@@ -133,6 +133,20 @@ export const netWorthSnapshotEvent = z.object({
   ts: isoTimestamp,
 });
 
+export const bankItemSchema = z.object({
+  itemId: z.number().int().optional(),
+  itemName: z.string(),
+  quantity: z.number().int().nonnegative(),
+  value: z.number().int().nonnegative(),
+});
+
+export const bankSnapshotEvent = z.object({
+  type: z.literal("bank_snapshot"),
+  items: z.array(bankItemSchema).max(2000),
+  totalValue: z.number().int().nonnegative(),
+  ts: isoTimestamp,
+});
+
 export const ingestEvent = z.discriminatedUnion("type", [
   xpGainEvent,
   levelUpEvent,
@@ -151,6 +165,7 @@ export const ingestEvent = z.discriminatedUnion("type", [
   playerDeathEvent,
   worldChangeEvent,
   netWorthSnapshotEvent,
+  bankSnapshotEvent,
 ]);
 
 export type IngestEvent = z.infer<typeof ingestEvent>;

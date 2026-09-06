@@ -3,6 +3,7 @@ package com.oldstats
 import com.google.inject.Provides
 import com.oldstats.api.OldStatsApiClient
 import com.oldstats.tracking.AchievementDiaryTracker
+import com.oldstats.tracking.BankTracker
 import com.oldstats.tracking.ClueTracker
 import com.oldstats.tracking.CollectionLogTracker
 import com.oldstats.tracking.CombatAchievementTracker
@@ -22,6 +23,7 @@ import net.runelite.api.events.ActorDeath
 import net.runelite.api.events.ChatMessage
 import net.runelite.api.events.GameStateChanged
 import net.runelite.api.events.GameTick
+import net.runelite.api.events.ItemContainerChanged
 import net.runelite.api.events.NpcSpawned
 import net.runelite.api.events.StatChanged
 import net.runelite.api.events.VarbitChanged
@@ -85,6 +87,7 @@ class OldStatsPlugin : Plugin() {
     private lateinit var personalBestTracker: PersonalBestTracker
     private lateinit var worldTracker: WorldTracker
     private lateinit var netWorthTracker: NetWorthTracker
+    private lateinit var bankTracker: BankTracker
 
     private var flushTask: ScheduledFuture<*>? = null
     private var netWorthTask: ScheduledFuture<*>? = null
@@ -113,6 +116,7 @@ class OldStatsPlugin : Plugin() {
         personalBestTracker = PersonalBestTracker(apiClient, lootTracker)
         worldTracker = WorldTracker(apiClient, client)
         netWorthTracker = NetWorthTracker(apiClient, client, itemManager)
+        bankTracker = BankTracker(apiClient, itemManager)
 
         val intervalSeconds = config.flushIntervalSeconds().coerceAtLeast(5).toLong()
         flushTask = executor.scheduleWithFixedDelay(
@@ -210,5 +214,10 @@ class OldStatsPlugin : Plugin() {
         if (config.trackClues()) clueTracker.onChatMessage(event)
         if (config.trackPets()) petTracker.onChatMessage(event)
         if (config.trackPersonalBests()) personalBestTracker.onChatMessage(event)
+    }
+
+    @Subscribe
+    fun onItemContainerChanged(event: ItemContainerChanged) {
+        if (config.trackBank()) bankTracker.onItemContainerChanged(event)
     }
 }

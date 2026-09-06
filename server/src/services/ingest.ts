@@ -76,6 +76,18 @@ export function ingestEvents(db: Database, playerId: number, events: IngestEvent
     `INSERT INTO net_worth_snapshots (player_id, inventory_value, equipment_value, bank_value, total_value, ts)
      VALUES (?, ?, ?, ?, ?, ?)`
   );
+  const deleteBankItems = db.prepare(`DELETE FROM bank_items WHERE player_id = ?`);
+  const insertBankItem = db.prepare(
+    `INSERT INTO bank_items (player_id, item_id, item_name, quantity, value) VALUES (?, ?, ?, ?, ?)`
+  );
+  const upsertBankMeta = db.prepare(
+    `INSERT INTO bank_snapshots_meta (player_id, total_value, item_count, ts)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT(player_id) DO UPDATE SET
+       total_value = excluded.total_value,
+       item_count = excluded.item_count,
+       ts = excluded.ts`
+  );
 
   const applyAll = db.transaction((evts: IngestEvent[]) => {
     for (const event of evts) {
@@ -160,6 +172,13 @@ export function ingestEvents(db: Database, playerId: number, events: IngestEvent
             event.totalValue,
             event.ts
           );
+          break;
+        case "bank_snapshot":
+          deleteBankItems.run(playerId);
+          for (const item of event.items) {
+            insertBankItem.run(playerId, item.itemId ?? null, item.itemName, item.quantity, item.value);
+          }
+          upsertBankMeta.run(playerId, event.totalValue, event.items.length, event.ts);
           break;
       }
     }

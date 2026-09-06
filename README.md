@@ -3,9 +3,9 @@
 Tracks an Old School RuneScape player's XP, monster kills/drops, quests,
 slayer tasks, farming patches, collection log unlocks, combat achievements,
 achievement diaries, clue scrolls, pets, boss personal bests, PvP kills/deaths,
-world/session history and net worth via a RuneLite plugin, stores it on a
-self-hosted server, and displays it in a mobile-first web app with a weekly
-"wrap-up" summary.
+world/session history, net worth and bank contents via a RuneLite plugin,
+stores it on a self-hosted server, and displays it in a mobile-first web app
+with a weekly "wrap-up" summary.
 
 ## Components
 
@@ -70,7 +70,32 @@ npm run dev             # http://localhost:5173
 ```
 
 Open it on your phone (or resize your browser) — layout is mobile-first with
-a bottom tab bar for Dashboard / Wrap-up / Activity / Player.
+a bottom tab bar for Dashboard / Wrap-up / Activity / Bank / Player.
+
+### 4. E2E tests
+
+```
+cd web
+npm run test:e2e        # headless run
+npm run test:e2e:ui     # interactive Playwright UI
+```
+
+This is a real integration suite, not a mocked-frontend one: `npm run test:e2e`
+spins up an actual server instance (`server/`) against a throwaway temp
+SQLite DB on port 4500, seeds it via the real HTTP ingest API with a fixed
+dataset (`web/e2e/seed-data.ts` — the single source of truth for both the
+seed and the assertions), starts the Vite dev server on port 5500 pointed at
+it, then runs Playwright against the whole stack. Both processes are torn
+down and the temp DB deleted after the run, pass or fail.
+
+Playwright is pinned to `1.61.1` in `package.json` to match the exact browser
+build `nix develop` provides via nixpkgs' `playwright-driver.browsers`
+(wired up in `flake.nix`) — NixOS can't run Playwright's own downloaded
+generic-glibc Chromium build (missing shared libs), and the driver/browser
+versions have to match exactly or the CDP handshake fails. If you're not on
+NixOS, delete the `PLAYWRIGHT_BROWSERS_PATH`/`PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS`
+exports from the flake's `shellHook` and run `npx playwright install
+chromium` once instead — any reasonably recent `@playwright/test` will do.
 
 ## Notes and known limitations
 
@@ -176,6 +201,14 @@ a bottom tab bar for Dashboard / Wrap-up / Activity / Player.
   at least once that session — that's when the client actually receives
   bank contents from the server, a RuneLite-wide limitation rather than
   something specific to this plugin.
+- **Bank view** shows the player's current bank contents (the web app's
+  Bank tab), not a history of past bank compositions — each new snapshot
+  wholesale replaces the previous one in the database, mirroring how a bank
+  actually works (there's no meaningful "diff" between two bank states to
+  track as separate events, unlike kills/drops/etc). Same bank-must-be-opened
+  limitation as net worth above. Snapshots are rate-limited to at most once
+  per 10 seconds so reorganizing a bank doesn't spam a full item-list
+  payload on every slot change.
 - **EHP/EHB (efficient hours played/bossed) is intentionally not
   implemented.** It requires community-maintained xp-per-hour and
   kills-per-hour rate tables (hundreds of entries, e.g. what Wise Old Man

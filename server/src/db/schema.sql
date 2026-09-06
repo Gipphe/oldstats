@@ -180,3 +180,24 @@ CREATE TABLE IF NOT EXISTS net_worth_snapshots (
   ts TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_net_worth_player_ts ON net_worth_snapshots(player_id, ts);
+
+-- Represents the player's *current* bank contents as of the last snapshot
+-- the plugin sent (rows are replaced wholesale on each new snapshot, not
+-- accumulated like other event tables), rather than a history of past
+-- bank compositions — see bank_snapshots_meta for the "as of" timestamp.
+CREATE TABLE IF NOT EXISTS bank_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  player_id INTEGER NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+  item_id INTEGER,
+  item_name TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  value INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_bank_items_player_value ON bank_items(player_id, value);
+
+CREATE TABLE IF NOT EXISTS bank_snapshots_meta (
+  player_id INTEGER PRIMARY KEY REFERENCES players(id) ON DELETE CASCADE,
+  total_value INTEGER NOT NULL,
+  item_count INTEGER NOT NULL,
+  ts TEXT NOT NULL
+);

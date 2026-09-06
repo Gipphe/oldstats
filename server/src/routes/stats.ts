@@ -23,6 +23,7 @@ import {
   getPlayerDeaths,
   getWorldBreakdown,
   getNetWorthHistory,
+  getBank,
   type DateRange,
 } from "../services/stats.js";
 import { getWeeklySummary } from "../services/weeklySummary.js";
@@ -167,6 +168,10 @@ export function statsRouter(db: Database): Router {
     const range = parseRange(req);
     const limit = req.query.limit ? Number(req.query.limit) : undefined;
     res.json(getNetWorthHistory(db, (req as any).resolvedPlayerId, range, limit));
+  });
+
+  router.get("/players/:playerId/bank", (req, res) => {
+    res.json(getBank(db, (req as any).resolvedPlayerId));
   });
 
   router.get("/players/:playerId/weekly-summary", (req, res) => {

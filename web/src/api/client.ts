@@ -1,4 +1,5 @@
 import type {
+  Bank,
   Clue,
   CollectionLogItem,
   CombatAchievement,
@@ -107,4 +108,6 @@ export const api = {
 
   netWorth: (playerId: number | string, range: DateRange = {}, limit?: number) =>
     get<NetWorthSnapshot[]>(`/players/${playerId}/net-worth`, { ...range, limit }),
+
+  bank: (playerId: number | string) => get<Bank>(`/players/${playerId}/bank`),
 };

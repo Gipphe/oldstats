@@ -144,6 +144,20 @@ export interface NetWorthSnapshot {
   ts: string;
 }
 
+export interface BankItem {
+  itemId: number | null;
+  itemName: string;
+  quantity: number;
+  value: number;
+}
+
+export interface Bank {
+  items: BankItem[];
+  totalValue: number;
+  itemCount: number;
+  lastSyncedAt: string | null;
+}
+
 export interface WeeklySummary {
   weekStart: string;
   weekEnd: string;

@@ -151,4 +151,12 @@ interface OldStatsConfig : Config {
         position = 17,
     )
     fun netWorthIntervalMinutes(): Int = 30
+
+    @ConfigItem(
+        keyName = "trackBank",
+        name = "Track bank contents",
+        description = "Snapshot bank contents whenever it changes, for the web app's bank view",
+        position = 18,
+    )
+    fun trackBank(): Boolean = true
 }

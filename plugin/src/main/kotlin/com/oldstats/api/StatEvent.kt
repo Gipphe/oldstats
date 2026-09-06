@@ -2,6 +2,13 @@ package com.oldstats.api
 
 import java.time.Instant
 
+data class BankItemPayload(
+    val itemId: Int?,
+    val itemName: String,
+    val quantity: Int,
+    val value: Long,
+)
+
 /**
  * Mirrors the discriminated union accepted by the OldStats server's
  * POST /api/events endpoint (server/src/types/events.ts). Field names must
@@ -122,6 +129,12 @@ sealed class StatEvent(val type: String) {
         val totalValue: Long,
         val ts: String = now(),
     ) : StatEvent("net_worth_snapshot")
+
+    class BankSnapshot(
+        val items: List<BankItemPayload>,
+        val totalValue: Long,
+        val ts: String = now(),
+    ) : StatEvent("bank_snapshot")
 
     companion object {
         fun now(): String = Instant.now().toString()

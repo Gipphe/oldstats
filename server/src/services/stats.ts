@@ -336,3 +336,22 @@ export function getNetWorthHistory(db: Database, playerId: number, range: DateRa
     )
     .all(playerId, ...params, limit) as any[];
 }
+
+export function getBank(db: Database, playerId: number) {
+  const items = db
+    .prepare(
+      `SELECT item_id as itemId, item_name as itemName, quantity, value
+       FROM bank_items WHERE player_id = ? ORDER BY value DESC`
+    )
+    .all(playerId) as any[];
+  const meta = db
+    .prepare(`SELECT total_value as totalValue, item_count as itemCount, ts FROM bank_snapshots_meta WHERE player_id = ?`)
+    .get(playerId) as { totalValue: number; itemCount: number; ts: string } | undefined;
+
+  return {
+    items,
+    totalValue: meta?.totalValue ?? 0,
+    itemCount: meta?.itemCount ?? 0,
+    lastSyncedAt: meta?.ts ?? null,
+  };
+}
