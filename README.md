@@ -21,16 +21,34 @@ with a weekly "wrap-up" summary.
 
 A `flake.nix` at the repo root provides Node.js, JDK 17 and Gradle for all
 three subprojects — run `nix develop` from the repo root (or any subproject)
-to get a shell with everything needed.
+to get a shell with everything needed. It also packages the server proper
+(`packages.<system>.server`, built with `buildNpmPackage`) and exposes it as
+a flake app: `nix run .#server` (or just `nix run .`) builds it if needed
+and starts it — no dev shell, no manual `npm install`, works from anywhere.
+`nix build .#server` builds it without running it (`result/bin/oldstats-server`).
+
+By default the packaged binary stores its SQLite DB under
+`$XDG_DATA_HOME/oldstats/oldstats.db` (falling back to
+`~/.local/share/oldstats/oldstats.db`) and listens on port 4000 — override
+with `OLDSTATS_DB_PATH`/`PORT` env vars, same as the manual setup below.
 
 ### 1. Server
 
 ```
+nix run .#server        # http://localhost:4000
+```
+
+Or the manual, non-Nix-packaged equivalent — e.g. for running the test suite,
+or iterating on the server itself (`nix run` rebuilds from scratch on every
+source change, which is fine for actually running it but slow for active
+development):
+
+```
 cd server
-cp .env.example .env   # adjust if needed
+cp .env.example .env    # adjust if needed; not auto-loaded, export manually or `set -a; source .env; set +a`
 npm install
-npm run dev            # http://localhost:4000
-npm test               # unit + supertest integration tests (in-memory SQLite)
+npm run dev             # http://localhost:4000
+npm test                # unit + supertest integration tests (in-memory SQLite)
 ```
 
 Register a player and grab its API key:
