@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import "./BarChart.css";
 
 export interface BarChartDatum {
@@ -5,6 +6,7 @@ export interface BarChartDatum {
   value: number;
   badge?: string;
   color?: string;
+  icon?: ReactNode;
 }
 
 interface BarChartProps {
@@ -33,24 +35,32 @@ export function BarChart({ data, valueFormatter = (v) => v.toLocaleString(), emp
 
   return (
     <div className="barchart" role="img" aria-label={data.map((d) => `${d.label}: ${valueFormatter(d.value)}`).join(", ")}>
-      {data.map((d, i) => (
-        <div className="barchart-row" key={d.label}>
-          <div className="barchart-row-header">
-            <span className="barchart-label">{d.label}</span>
-            {d.badge && <span className="barchart-badge">{d.badge}</span>}
+      {data.map((d, i) => {
+        const color = d.color ?? PALETTE[i % PALETTE.length];
+        return (
+          <div className="barchart-row" key={d.label}>
+            <div className="barchart-row-header">
+              {d.icon && (
+                <span className="barchart-icon" style={{ color }}>
+                  {d.icon}
+                </span>
+              )}
+              <span className="barchart-label">{d.label}</span>
+              {d.badge && <span className="barchart-badge">{d.badge}</span>}
+            </div>
+            <div className="barchart-track">
+              <div
+                className="barchart-fill"
+                style={{
+                  width: `${Math.max((d.value / max) * 100, 3)}%`,
+                  background: color,
+                }}
+              />
+            </div>
+            <span className="barchart-value tabular-nums">{valueFormatter(d.value)}</span>
           </div>
-          <div className="barchart-track">
-            <div
-              className="barchart-fill"
-              style={{
-                width: `${Math.max((d.value / max) * 100, 3)}%`,
-                background: d.color ?? PALETTE[i % PALETTE.length],
-              }}
-            />
-          </div>
-          <span className="barchart-value tabular-nums">{valueFormatter(d.value)}</span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

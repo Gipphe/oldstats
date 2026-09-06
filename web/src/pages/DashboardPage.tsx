@@ -2,6 +2,7 @@ import { api } from "../api/client";
 import { BarChart } from "../components/BarChart";
 import { LineChart } from "../components/LineChart";
 import { SectionCard } from "../components/SectionCard";
+import { SkillIcon } from "../components/SkillIcon";
 import { StatTile } from "../components/StatTile";
 import { useApiData } from "../hooks/useApiData";
 import { formatGp, formatNumber, titleCase } from "../lib/format";
@@ -83,7 +84,9 @@ export function DashboardPage() {
 
       <SectionCard title="XP by skill" accent="var(--series-1)">
         <BarChart
-          data={(xpBySkill.data ?? []).slice(0, 8).map((s) => ({ label: titleCase(s.skill), value: s.xpGained }))}
+          data={(xpBySkill.data ?? [])
+            .slice(0, 8)
+            .map((s) => ({ label: titleCase(s.skill), value: s.xpGained, icon: <SkillIcon skill={s.skill} /> }))}
           emptyMessage="No XP tracked yet"
         />
       </SectionCard>

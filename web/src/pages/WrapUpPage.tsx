@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { api } from "../api/client";
 import { BarChart } from "../components/BarChart";
 import { SectionCard } from "../components/SectionCard";
+import { SkillIcon } from "../components/SkillIcon";
 import { StatTile } from "../components/StatTile";
 import { useApiData } from "../hooks/useApiData";
 import { formatDate, formatDuration, formatGp, formatNumber, titleCase } from "../lib/format";
@@ -101,7 +102,7 @@ export function WrapUpPage() {
 
           <SectionCard title="Top skills" accent="var(--series-1)">
             <BarChart
-              data={data.topSkills.map((s) => ({ label: titleCase(s.skill), value: s.xpGained }))}
+              data={data.topSkills.map((s) => ({ label: titleCase(s.skill), value: s.xpGained, icon: <SkillIcon skill={s.skill} /> }))}
               emptyMessage="No XP this week"
             />
           </SectionCard>
