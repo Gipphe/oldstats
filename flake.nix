@@ -1,5 +1,5 @@
 {
-  description = "OldStats dev environment (Node/TypeScript server + web, Kotlin RuneLite plugin)";
+  description = "OldStats dev environment (Node/TypeScript server + web, Java RuneLite plugin)";
 
   inputs = {
     nixpkgs.url = "nixpkgs";
@@ -139,9 +139,7 @@
             version = "1.0.0";
             src = ./plugin;
 
-            # Deprecated Gradle features used by the Kotlin/shadow plugins
-            # make this build incompatible with Gradle 9 — must stay 8.x,
-            # matching the version pinned by plugin/gradle-wrapper.properties.
+            # Matches the Gradle version pinned by plugin/gradle-wrapper.properties.
             nativeBuildInputs = [ pkgs.gradle_8 ];
 
             # Gradle has no built-in reproducible dependency fetching, so
@@ -156,12 +154,15 @@
             };
             __darwinAllowLocalNetworking = true;
 
-            gradleBuildTask = "shadowJar";
+            # Pure Java, no extra runtime deps beyond what `client` (compileOnly)
+            # already provides on RuneLite's own classpath — the plain `jar`
+            # task's output is sufficient for sideloading, no fat jar needed.
+            gradleBuildTask = "jar";
 
             installPhase = ''
               runHook preInstall
               mkdir -p $out
-              cp build/libs/*-all.jar $out/oldstats-plugin.jar
+              cp build/libs/*.jar $out/oldstats-plugin.jar
               runHook postInstall
             '';
           });

@@ -9,7 +9,7 @@ with a weekly "wrap-up" summary.
 
 ## Components
 
-- **`plugin/`** — RuneLite plugin (Kotlin). Tracks stats client-side and
+- **`plugin/`** — RuneLite plugin (Java). Tracks stats client-side and
   batches them to the server over HTTP.
 - **`server/`** — Backend API (TypeScript + Express + SQLite via
   better-sqlite3). Ingests events from the plugin and serves stats to the web
@@ -96,8 +96,8 @@ every shell), the wrapper falls back to the first live socket it finds in
 `/tmp/.X11-unix/`.
 
 `runClient` is the standard way to try an unpublished plugin without going
-through Plugin Hub review — see `OldStatsPluginTest.kt`, which just calls
-`ExternalPluginManager.loadBuiltin(OldStatsPlugin::class.java)` before
+through Plugin Hub review — see `OldStatsPluginTest.java`, which just calls
+`ExternalPluginManager.loadBuiltin(OldStatsPlugin.class)` before
 `RuneLite.main()`. It opens an independent RuneLite client (your regular
 client/launcher, if any, is untouched); log in there like normal. In that
 client's plugin list, find "OldStats" and set:
@@ -135,11 +135,13 @@ well use `runClient` below instead, since it isn't gated by developer mode
 at all.
 
 If you still want the jar for some other reason (e.g. a genuinely
-self-built, launcher-free client), it's `./gradlew shadowJar` →
-`build/libs/oldstats-plugin-1.0.0-all.jar`, or `nix build .#plugin` →
+self-built, launcher-free client), it's `./gradlew jar` →
+`build/libs/oldstats-plugin-1.0.0.jar`, or `nix build .#plugin` →
 `result/oldstats-plugin.jar` (same jar, built hermetically via `gradle_8` +
-nixpkgs' Gradle dependency proxy). If `plugin/build.gradle.kts`'s
-dependencies ever change, the latter will fail with a message that
+nixpkgs' Gradle dependency proxy). No fat-jar/shadow plugin needed — the
+plugin is pure Java with no extra runtime dependencies beyond what `client`
+already provides on RuneLite's own classpath. If `plugin/build.gradle.kts`'s
+dependencies ever change, the Nix build will fail with a message that
 `plugin/deps.json` is out of date — regenerate it with:
 
 ```
@@ -231,21 +233,23 @@ use the same server port and temp DB. See `web/scripts/screenshot-app.ts`.
   (`FarmingWorld`/`FarmingPatch`/`PatchImplementation`) is package-private
   and lives in a different plugin's Guice scope, this ports a hand-transcribed
   copy of it instead — see `plugin/.../tracking/farming/`:
-  `FarmingWorldData.kt` (all ~43 known regions, their patch names and varbit
-  IDs) and `PatchDecode.kt` (the per-crop-type varbit → produce/state decode
+  `FarmingWorldData.java` (all ~43 known regions, their patch names and varbit
+  IDs) and `PatchDecode.java` (the per-crop-type varbit → produce/state decode
   tables for all 23 patch types, dropping only the growth-tick sub-stage
   since this plugin tracks activity, not timers). Both are covered by unit
-  tests in `FarmingDataTest.kt`. A patch's varbit is only meaningful while
+  tests in `FarmingDataTest.java`. A patch's varbit is only meaningful while
   you're in/near its region (the same varbit id is reused across many
   unrelated regions), so, like the real plugin, this only reads patches for
   whichever region you're currently standing in — it won't detect a crop
   finishing while you're away, only the state it's in next time you're back.
-- **Boss detection** uses a hardcoded name list (`plugin/.../BossList.kt`) —
+- **Boss detection** uses a hardcoded name list (`plugin/.../BossList.java`) —
   extend it if a boss you fight isn't being flagged.
 - **Quest completion** has no dedicated RuneLite event either; the plugin
   polls all `Quest` states on `VarbitChanged` and diffs against the last seen
-  state. This is cheap (~200 enum reads) but only fires as fast as varbits
-  change.
+  state. `Quest.getState()` runs a real CS2 script per quest (not a cheap
+  field read), and varbits are often changed by scripts themselves, so this
+  is deferred one client tick via `ClientThread` to avoid a
+  `scripts are not reentrant` crash — see `QuestTracker.java`.
 - **Collection log, combat achievements and achievement diaries** also have
   no dedicated RuneLite events, but unlike slayer/farming these are tracked
   via reliable varbit/varp polling (same diff-on-`VarbitChanged` pattern as
@@ -278,12 +282,12 @@ use the same server port and temp DB. See `web/scripts/screenshot-app.ts`.
     are done, not just whether the whole tier is complete) has no obviously
     diary-named varbit, but two independent trackers cover it from different
     angles, both feeding the same `diary_task_progress` event:
-    - [`DiaryBitsetTracker`](plugin/src/main/kotlin/com/oldstats/tracking/DiaryBitsetTracker.kt)
+    - [`DiaryBitsetTracker`](plugin/src/main/java/com/oldstats/tracking/DiaryBitsetTracker.java)
       is the primary, always-on one. Individual tasks turn out to be tracked
       as single bits packed into a couple of `VarPlayer`s per area (e.g.
       `ARDOUNGE_ACHIEVEMENT_DIARY`/`_DIARY2`) — the same mechanism RuneLite's
       own **Quest Helper** plugin uses to decide which diary steps to skip.
-      [`DiaryTaskData.kt`](plugin/src/main/kotlin/com/oldstats/tracking/diary/DiaryTaskData.kt)
+      [`DiaryTaskData.java`](plugin/src/main/java/com/oldstats/tracking/diary/DiaryTaskData.java)
       is a ~450-entry table (area, tier, task name, varp, bit position) ported
       by fetching and parsing all 48 of Quest Helper's own
       `helpers/achievementdiaries/**` source files (github.com/Zoinkwiz/quest-helper)
@@ -298,7 +302,7 @@ use the same server port and temp DB. See `web/scripts/screenshot-app.ts`.
       easy/medium/hard tiers, which predate this bitset system entirely (see
       above) and have no per-task identity in the game's state at all, bitset
       or otherwise.
-    - [`DiaryTaskTracker`](plugin/src/main/kotlin/com/oldstats/tracking/DiaryTaskTracker.kt)
+    - [`DiaryTaskTracker`](plugin/src/main/java/com/oldstats/tracking/DiaryTaskTracker.java)
       is a supplementary, opportunistic tracker reading the diary journal's
       own widget tree — the game renders each task line and wraps
       already-completed ones in `<str>` (strikethrough) tags, the same signal
