@@ -38,7 +38,7 @@ tasks.register<JavaExec>("runClient") {
     description = "Launches a real RuneLite client with this plugin preloaded (see OldStatsPluginTest.java)"
     mainClass.set("com.oldstats.OldStatsPluginTest")
     classpath = sourceSets.test.get().runtimeClasspath
-    jvmArgs("-ea") // required by ExternalPluginManager.loadBuiltin as a development safety check
+    jvmArgs("-ea -XX:ErrorFile=/home/gipphe/.local/share/bolt-launcher/.runelite/logs/jvm_crash_pid_%p.log -Duser.home=/home/gipphe/.local/share/bolt-launcher") // required by ExternalPluginManager.loadBuiltin as a development safety check
 }
 
 // No extra runtime dependencies beyond what `client` (compileOnly) already
