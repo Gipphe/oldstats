@@ -173,6 +173,7 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
+          isLinux = pkgs.lib.hasSuffix "linux" system;
         in
         {
           server = {
@@ -217,6 +218,19 @@
                   echo "warning: DISPLAY is unset and no X11 socket was found in /tmp/.X11-unix." >&2
                   echo "RuneLite needs a running X server (or XWayland, on Wayland desktops) to open a window." >&2
                 fi
+
+                ${pkgs.lib.optionalString isLinux ''
+                  # librlawt.so (RuneLite's native AWT/OpenGL helper) is a
+                  # prebuilt binary fetched from Maven at runtime, not built
+                  # by nixpkgs — it has no RPATH pointing at the Nix store or
+                  # NixOS's driver directory, so graphical plugins (117 HD,
+                  # the GPU plugin, ...) fail to dlopen libGL.so.1 unless
+                  # it's on LD_LIBRARY_PATH. libglvnd provides libGL.so.1
+                  # itself; /run/opengl-driver/lib (NixOS-specific, silently
+                  # ignored if absent, e.g. on non-NixOS Linux) provides
+                  # whatever vendor GLX/EGL backend is actually configured.
+                  export LD_LIBRARY_PATH="${pkgs.libglvnd}/lib:/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+                ''}
 
                 # --no-daemon: a persistent Gradle daemon snapshots its
                 # environment (DISPLAY, XAUTHORITY, ...) once at startup and
