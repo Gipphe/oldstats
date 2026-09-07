@@ -140,7 +140,7 @@ self-built, launcher-free client), it's `./gradlew jar` →
 `result/oldstats-plugin.jar` (same jar, built hermetically via `gradle_8` +
 nixpkgs' Gradle dependency proxy). No fat-jar/shadow plugin needed — the
 plugin is pure Java with no extra runtime dependencies beyond what `client`
-already provides on RuneLite's own classpath. If `plugin/build.gradle.kts`'s
+already provides on RuneLite's own classpath. If `plugin/build.gradle`'s
 dependencies ever change, the Nix build will fail with a message that
 `plugin/deps.json` is out of date — regenerate it with:
 

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.oldstats.api.OldStatsApiClient;
 import com.oldstats.api.StatEvent;
 import java.util.List;
+import java.util.stream.Collectors;
 import net.runelite.api.Client;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.gameval.InterfaceID;
@@ -94,7 +95,7 @@ public class DiaryTaskTrackerTest {
         verify(apiClient, times(3)).enqueue(captor.capture());
         List<StatEvent.DiaryTaskProgress> events = captor.getAllValues().stream()
             .map(e -> (StatEvent.DiaryTaskProgress) e)
-            .toList();
+            .collect(Collectors.toList());
 
         assertEquals("ARDOUGNE", events.get(0).diaryArea);
         assertEquals("EASY", events.get(0).tier);
@@ -170,7 +171,7 @@ public class DiaryTaskTrackerTest {
         verify(apiClient, times(2)).enqueue(captor.capture());
         List<StatEvent.DiaryTaskProgress> events = captor.getAllValues().stream()
             .map(e -> (StatEvent.DiaryTaskProgress) e)
-            .toList();
+            .collect(Collectors.toList());
         assertEquals("EASY", events.get(0).tier);
         assertEquals("EASY", events.get(1).tier);
     }

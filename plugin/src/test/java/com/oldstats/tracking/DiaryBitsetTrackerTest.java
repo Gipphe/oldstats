@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import net.runelite.api.Client;
 import net.runelite.api.gameval.VarPlayerID;
 import org.junit.Before;
@@ -59,7 +60,7 @@ public class DiaryBitsetTrackerTest {
         List<StatEvent.DiaryTaskProgress> ardougneEvents = captor.getAllValues().stream()
             .map(e -> (StatEvent.DiaryTaskProgress) e)
             .filter(e -> e.diaryArea.equals("ARDOUGNE") && e.tier.equals("EASY"))
-            .toList();
+            .collect(Collectors.toList());
         assertEquals(true, findByTaskName(ardougneEvents, "Essence Mine").completed);
         assertEquals(true, findByTaskName(ardougneEvents, "Steal Cake").completed);
         assertEquals(false, findByTaskName(ardougneEvents, "Sell Silk").completed);

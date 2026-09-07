@@ -184,7 +184,7 @@
             program = "${self.packages.${system}.web}/bin/oldstats-web";
           };
           # Launches a real RuneLite client with the plugin preloaded (see
-          # OldStatsPluginTest.kt / build.gradle.kts's runClient task). Unlike
+          # OldStatsPluginTest.java / build.gradle's runClient task). Unlike
           # `packages.plugin`, this isn't built hermetically: it opens a real
           # GUI window on the host's display and needs a writable Gradle
           # project directory (build/ cache, ~/.gradle), so it just shells
